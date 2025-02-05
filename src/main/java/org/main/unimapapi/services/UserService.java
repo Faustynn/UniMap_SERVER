@@ -50,4 +50,9 @@ public class UserService {
         return user.orElse(null);
     }
 
+    public User findByUsername(String username) {
+        Optional<User> user = userRepository.findByUsername(username);
+        return user.orElse(null);
+    }
+
 }
