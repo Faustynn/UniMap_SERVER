@@ -7,7 +7,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ServerConnection {
+public class ServerConnection_dto {
     private String status;
     private String timestamp;
 }

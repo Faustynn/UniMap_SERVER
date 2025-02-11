@@ -3,14 +3,14 @@ package org.main.unimapapi.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
 @Getter
 @Setter
+@Table(name = "users")
+@Entity
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

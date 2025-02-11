@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
 import org.main.unimapapi.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +13,8 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public User create(User_dto dto) {
         User user = User.builder()
@@ -40,9 +42,8 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    public User findByEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
-        return user.orElse(null);
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public User findByLogin(String login) {
@@ -55,4 +56,8 @@ public class UserService {
         return user.orElse(null);
     }
 
+    public User getIdByEmail(String email) {
+        Optional<User> user = userRepository.getIdByEmail(email);
+        return user.orElse(null);
+    }
 }

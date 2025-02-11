@@ -1,6 +1,6 @@
 package org.main.unimapapi.utils;
 
-import org.main.unimapapi.configs.SecurityConfig;
+import org.main.unimapapi.configs.AppConfig;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -9,9 +9,9 @@ import java.util.Base64;
 
 
 public class Decryptor {
-    private static final String AES_ALGORITHM = SecurityConfig.getAesAlgorithm();
-    private static final String SECRET_KEY = SecurityConfig.getSecretKey();
-    private static final String IV = SecurityConfig.getIv();
+    private static final String AES_ALGORITHM = AppConfig.getAesAlgorithm();
+    private static final String SECRET_KEY = AppConfig.getSecretKey();
+    private static final String IV = AppConfig.getIv();
 
 
     public static String decrypt(String encryptedData) throws Exception {

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.services.AuthService;
-import org.main.unimapapi.services.RegistrationService;
-import org.main.unimapapi.services.UserService;
+import org.main.unimapapi.services.*;
 import org.main.unimapapi.utils.Decryptor;
 import org.main.unimapapi.utils.Hashing;
 import org.springframework.http.HttpStatus;
@@ -16,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -24,6 +23,8 @@ public class UserController {
     private final UserService userService;
     private final AuthService authService;
     private final RegistrationService registrationService;
+    private final ConfirmationCodeService confirmationCodeService;
+    private final ChangePassService change;
 
     @PostMapping
     public ResponseEntity<User> create(@Valid @RequestBody User_dto dto) {
@@ -48,13 +49,14 @@ public class UserController {
 
     @GetMapping("user/email/{email}")
     public ResponseEntity<User> getByEmail(@PathVariable String email) {
-        System.out.println("A have a request with email: " + email);
-
-        User user = userService.findByEmail(email);
-        if (user == null) {
+        System.out.println("I have a request with email: " + email);
+        Optional<User> user = userService.findByEmail(email);
+        if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } else {
+            confirmationCodeService.generateConfirmationCode(email,user.get().getId());
+            return ResponseEntity.ok(user.get());
         }
-        return ResponseEntity.ok(user);
     }
 
     @GetMapping("user/login/{login}")
@@ -95,7 +97,7 @@ public class UserController {
             if (userService.findByLogin(login) != null) {
                 System.err.println("User with this login already exists: " + login); // 303
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build();
-            }else if(userService.findByEmail(email) != null){
+            }else if(userService.findByEmail(email).isPresent()){
                 System.err.println("User with this email already exists: " + email);
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build(); // 304
             } else if(userService.findByUsername(username) != null){
@@ -146,6 +148,62 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             System.err.println("Invalid encoded string: " + jsonData);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("user/email/password")
+    public ResponseEntity<Void> changePassword(@RequestBody String jsonData) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(jsonData);
+            String data = jsonNode.get("data").asText();
+            String[] parts = data.split(":");
+
+            if (parts.length != 2) {
+                System.err.println("Data format is invalid: " + data);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            String email = parts[0];
+            String new_password = Decryptor.decrypt(parts[1]);
+
+            if (change.changePassword(email, new_password)) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("user/email/code")
+    public ResponseEntity<Boolean> compareCodes(@RequestBody String jsonData) {
+        try {
+            // TODO: проверка на правльность кода написаного человеком и в таблице и если правильно то удалить код из таблицы и дать доступ до смены пароля
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(jsonData);
+            String data = jsonNode.get("data").asText();
+
+            String[] parts = data.split(":");
+            if (parts.length != 2) {
+                System.err.println("Data format is invalid: " + data);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            }
+            String email = parts[0];
+            String userCode = parts[1];
+
+       //     System.out.println("i have a request code : " + userCode);
+
+            Optional<User> user = userService.findByEmail(email);
+            Long id = user.map(User::getId).orElse(null);
+
+            boolean isCodeValid = confirmationCodeService.validateConfirmationCode(id, userCode);
+            return ResponseEntity.ok(isCodeValid);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
