@@ -44,4 +44,12 @@ public class AppConfig {
     public static String getPassword() {
         return properties.getProperty("PASSWORD");
     }
+
+    public static String getAccessKey() {
+        return properties.getProperty("ACCESS_SECRET_KEY");
+    }
+
+    public static String getRefreshKey() {
+        return properties.getProperty("REFRESH_SECRET_KEY");
+    }
 }

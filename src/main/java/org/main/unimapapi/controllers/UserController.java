@@ -2,18 +2,23 @@ package org.main.unimapapi.controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
+import org.main.unimapapi.repositories.TokenRepository;
 import org.main.unimapapi.services.*;
 import org.main.unimapapi.utils.Decryptor;
 import org.main.unimapapi.utils.Hashing;
+import org.main.unimapapi.utils.JwtToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -25,6 +30,8 @@ public class UserController {
     private final RegistrationService registrationService;
     private final ConfirmationCodeService confirmationCodeService;
     private final ChangePassService change;
+    private final TokenRepository tokenRepository;
+    private final JwtToken jwtToken;
 
     @PostMapping
     public ResponseEntity<User> create(@Valid @RequestBody User_dto dto) {
@@ -91,7 +98,7 @@ public class UserController {
             String passwordHash = Hashing.hashPassword(password);
             String login = parts[3];
             String email = parts[2];
-            System.out.println("Username: " + username + ", Email: " + email + ", Login: " + login + ", Password: " + password);
+         //   System.out.println("Username: " + username + ", Email: " + email + ", Login: " + login + ", Password: " + password);
 
             // Try to add user into users table if it doesn't exist yet or send 303 code if user already exists
             if (userService.findByLogin(login) != null) {
@@ -120,7 +127,7 @@ public class UserController {
     }
 
     @PostMapping("authenticate")
-    public ResponseEntity<User> authenticate(@RequestBody String jsonData) {
+    public ResponseEntity<?> authenticate(@RequestBody String jsonData, HttpServletResponse response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
@@ -144,7 +151,25 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
           //  System.out.println("I send 200 code for user: " + user.getLogin());
-            return ResponseEntity.ok(user);
+
+            String accessToken = jwtToken.generateAccessToken(user.getUsername());
+            String refreshToken = jwtToken.generateRefreshToken(user.getUsername());
+            TokenService tokenService = new TokenService(tokenRepository, jwtToken);
+            tokenService.saveUserToken(user, refreshToken);
+
+            // Cookie for the refreshToken
+            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setMaxAge(86400); // 1 day
+            response.addCookie(refreshTokenCookie);
+
+            user.setPassword(null);
+            return ResponseEntity.ok(Map.of(
+                    "user", user,
+                    "accessToken", accessToken
+            ));
         } catch (IllegalArgumentException e) {
             System.err.println("Invalid encoded string: " + jsonData);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
