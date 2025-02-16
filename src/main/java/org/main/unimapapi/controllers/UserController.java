@@ -7,9 +7,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repositories.TokenRepository;
 import org.main.unimapapi.services.*;
-import org.main.unimapapi.utils.Decryptor;
+import org.main.unimapapi.utils.EmailSender;
 import org.main.unimapapi.utils.Hashing;
 import org.main.unimapapi.utils.JwtToken;
 import org.springframework.http.HttpStatus;
@@ -30,7 +29,7 @@ public class UserController {
     private final RegistrationService registrationService;
     private final ConfirmationCodeService confirmationCodeService;
     private final ChangePassService change;
-    private final TokenRepository tokenRepository;
+    private final TokenService tokenService;
     private final JwtToken jwtToken;
 
     @PostMapping
@@ -61,11 +60,10 @@ public class UserController {
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } else {
-            confirmationCodeService.generateConfirmationCode(email,user.get().getId());
+            EmailSender.sendEmail(email, ConfirmationCodeService.generateRandomCode());
             return ResponseEntity.ok(user.get());
         }
     }
-
     @GetMapping("user/login/{login}")
     public ResponseEntity<User> getByLogin(@PathVariable String login) {
         System.out.println("A have a request with login: " + login);
@@ -83,13 +81,12 @@ public class UserController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
-            String encryptedData = jsonNode.get("data").asText();
 
-            String decryptedData = Decryptor.decrypt(encryptedData);
-            //  System.out.println("Decrypted data: " + decryptedData);
-            String[] parts = decryptedData.split(":");
+            String data = jsonNode.get("data").asText();
+              System.out.println("Decrypted data: " + data);
+            String[] parts = data.split(":");
             if (parts.length != 4) {
-                System.err.println("Decrypted data format is invalid: " + decryptedData);
+                System.err.println("Decrypted data format is invalid: " + data);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
@@ -98,16 +95,16 @@ public class UserController {
             String passwordHash = Hashing.hashPassword(password);
             String login = parts[3];
             String email = parts[2];
-         //   System.out.println("Username: " + username + ", Email: " + email + ", Login: " + login + ", Password: " + password);
+            System.out.println("Username: " + username + ", Email: " + email + ", Login: " + login + ", Password: " + password);
 
             // Try to add user into users table if it doesn't exist yet or send 303 code if user already exists
-            if (userService.findByLogin(login) != null) {
+            if (userService.findByLogin(login).isPresent()) {
                 System.err.println("User with this login already exists: " + login); // 303
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build();
             }else if(userService.findByEmail(email).isPresent()){
                 System.err.println("User with this email already exists: " + email);
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build(); // 304
-            } else if(userService.findByUsername(username) != null){
+            } else if(userService.findByUsername(username).isPresent()){
                 System.err.println("User with this username already exists: " + username);
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build(); // 305
             }
@@ -131,13 +128,12 @@ public class UserController {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
-            String encryptedData = jsonNode.get("data").asText();
+            String data = jsonNode.get("data").asText();
 
-            String decryptedData = Decryptor.decrypt(encryptedData);
-           // System.out.println("Decrypted data: " + decryptedData);
-            String[] parts = decryptedData.split(":");
+            // System.out.println("Decrypted data: " + decryptedData);
+            String[] parts = data.split(":");
             if (parts.length != 2) {
-                System.err.println("Decrypted data format is invalid: " + decryptedData);
+                System.err.println("Decrypted data format is invalid: " + data);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
             String login = parts[0];
@@ -154,7 +150,6 @@ public class UserController {
 
             String accessToken = jwtToken.generateAccessToken(user.getUsername());
             String refreshToken = jwtToken.generateRefreshToken(user.getUsername());
-            TokenService tokenService = new TokenService(tokenRepository, jwtToken);
             tokenService.saveUserToken(user, refreshToken);
 
             // Cookie for the refreshToken
@@ -192,7 +187,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
             String email = parts[0];
-            String new_password = Decryptor.decrypt(parts[1]);
+            String new_password = parts[1];
 
             if (change.changePassword(email, new_password)) {
                 return ResponseEntity.ok().build();

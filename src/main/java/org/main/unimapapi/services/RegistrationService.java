@@ -3,13 +3,18 @@ package org.main.unimapapi.services;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repositories.UserRepository;
+import org.main.unimapapi.repository_queries.UserRepositoryImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class RegistrationService {
-    private final UserRepository userRepository;
+    private final UserRepositoryImpl userRepository;
+
+    @Autowired
+    public RegistrationService(UserRepositoryImpl userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public User register(User_dto dto) {
         User user = User.builder()
@@ -22,6 +27,7 @@ public class RegistrationService {
                 .verification(dto.isVerification())
                 .avatar(dto.getAvatar())
                 .build();
-        return userRepository.save(user);
+        userRepository.save(user);
+        return user;
     }
 }

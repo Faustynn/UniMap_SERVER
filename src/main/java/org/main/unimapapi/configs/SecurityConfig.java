@@ -25,6 +25,7 @@ public class SecurityConfig {
     }
 
     private void configureHttpSecurity(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable());
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests

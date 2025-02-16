@@ -3,8 +3,7 @@ package org.main.unimapapi.services;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.main.unimapapi.repository_queries.UserRepositoryImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,21 +12,20 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class UserService {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepositoryImpl userRepository;
 
     public User create(User_dto dto) {
-        User user = User.builder()
-                .username(dto.getUsername())
-                .email(dto.getEmail())
-                .login(dto.getLogin())
-                .password(dto.getPassword())
-                .isAdmin(dto.isAdmin())
-                .subscribe(dto.isSubscribe())
-                .verification(dto.isVerification())
-                .avatar(dto.getAvatar())
-                .build();
-        return userRepository.save(user);
+        User user = new User();
+        user.setLogin(dto.getLogin());
+        user.setEmail(dto.getEmail());
+        user.setPassword(dto.getPassword());
+        user.setUsername(dto.getUsername());
+        user.setAdmin(dto.isAdmin());
+        user.setSubscribe(dto.isSubscribe());
+        user.setVerification(dto.isVerification());
+        user.setAvatar(dto.getAvatar());
+        userRepository.save(user);
+        return user;
     }
 
     public List<User> getAll() {
@@ -35,7 +33,8 @@ public class UserService {
     }
 
     public User update(User user) {
-        return userRepository.save(user);
+        userRepository.update(user);
+        return user;
     }
 
     public void delete(Long id) {
@@ -50,15 +49,7 @@ public class UserService {
         return userRepository.findByLogin(login);
     }
 
-
-
-    public User findByUsername(String username) {
-        Optional<User> user = userRepository.findByUsername(username);
-        return user.orElse(null);
-    }
-
-    public User getIdByEmail(String email) {
-        Optional<User> user = userRepository.getIdByEmail(email);
-        return user.orElse(null);
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.main.unimapapi.entities.TokenEntity;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repositories.TokenRepository;
+import org.main.unimapapi.repository_queries.TokenRepositoryImpl;
 import org.main.unimapapi.utils.JwtToken;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,17 +18,18 @@ import java.util.Optional;
 // TODO: LOGING WITH @Slf4j
 @RequiredArgsConstructor
 public class TokenService {
-    private final TokenRepository tokenRepository;
+    private final TokenRepositoryImpl tokenRepository;
     private final JwtToken jwtToken;
 
     public void saveUserToken(User user, String refreshToken) {
         Date expiryDate = jwtToken.extractExpiration(refreshToken);
 
         TokenEntity token = TokenEntity.builder()
-                .user(user)
+                .userId(user.getId())
                 .refreshToken(refreshToken)
                 .revoked(false)
                 .expiryDate(expiryDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         tokenRepository.save(token);
@@ -54,7 +55,7 @@ public class TokenService {
             return false;
         }
 
-        if (!token.getUser().getId().equals(user.getId())) {
+        if (!token.getUserId().equals(user.getId())) {
             System.err.println("Token belongs to another user");
             return false;
         }
@@ -78,24 +79,25 @@ public class TokenService {
     public void cleanupExpiredTokens() {
         System.err.println("Starting cleanup of expired tokens");
         try {
-            // Delete old tokens witch have more than 7 days
+            // Delete old tokens which have more than 7 days
             LocalDateTime cutoffDate = LocalDateTime.now().minusDays(7);
 
             int deletedTokens = tokenRepository.deleteExpiredTokens(cutoffDate);
-            System.err.println("Deleted expired tokens"+ deletedTokens);
+            System.err.println("Deleted expired tokens: " + deletedTokens);
         } catch (Exception e) {
-            System.err.println("Error during token cleanup"+ e);
+            System.err.println("Error during token cleanup: " + e);
         }
     }
 
     public String createAccessToken(User user) {
         return jwtToken.generateAccessToken(user.getUsername());
     }
+
     public boolean validateAccessToken(String accessToken, User user) {
         return jwtToken.validateAccessToken(accessToken, user.getUsername());
     }
+
     public String extractUsernameFromAccessToken(String accessToken) {
         return jwtToken.extractUsernameFromAccessToken(accessToken);
     }
-
 }

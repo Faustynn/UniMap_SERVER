@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/unimap_pc")
-
 public class CheckConnectionController {
     @GetMapping("/check-connection")
     public ResponseEntity<ServerConnection_dto> checkConnection() {
