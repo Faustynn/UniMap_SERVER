@@ -2,6 +2,8 @@ package org.main.unimapapi.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -9,6 +11,7 @@ import javax.validation.constraints.Size;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class User_dto {
     @NotBlank(message = "Login is mandatory")
     @Size(min = 3, max = 20, message = "Login must be between 3 and 20 characters")

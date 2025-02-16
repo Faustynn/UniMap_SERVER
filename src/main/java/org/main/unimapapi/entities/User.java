@@ -3,6 +3,8 @@ package org.main.unimapapi.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -34,4 +36,6 @@ public class User {
     private boolean verification;
     private int avatar;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<TokenEntity> tokens;
 }

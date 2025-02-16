@@ -2,6 +2,7 @@ package org.main.unimapapi.configs;
 
 
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +43,7 @@ public class AppConfig {
     }
 
     public static String getPassword() {
-        return properties.getProperty("PASSWORD");
+        return properties.getProperty("PASSWORD_email");
     }
 
     public static String getAccessKey() {
@@ -51,5 +52,35 @@ public class AppConfig {
 
     public static String getRefreshKey() {
         return properties.getProperty("REFRESH_SECRET_KEY");
+    }
+
+    @Getter
+    @Value("${oauth2-id-google}")
+    private String oauth2GoogleId;
+
+    @Getter
+    @Value("${oauth2-secret-google}")
+    private String oauth2GoogleSecret;
+
+    @Getter
+    @Value("${oauth2-id-facebook}")
+    private String oauth2FacebookId;
+
+    @Getter
+    @Value("${oauth2-secret-facebook}")
+    private String oauth2FacebookSecret;
+
+    public static String getOauth2Google_secret() {
+        return properties.getProperty("oauth2-secret-google");
+    }
+    public static String getOauth2Google_id() {
+        return properties.getProperty("oauth2-id-google");
+    }
+
+    public static String getOauth2Facebook_secret() {
+        return properties.getProperty("oauth2-secret-facebook");
+    }
+    public static String getOauth2Facebook_id() {
+        return properties.getProperty("oauth2-id-facebook");
     }
 }
