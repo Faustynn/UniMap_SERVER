@@ -25,18 +25,21 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final TokenRepository tokenRepository;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         OAuth2User oAuth2User = oauthToken.getPrincipal();
 
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
         String provider = oauthToken.getAuthorizedClientRegistrationId();
+        String login = email;
 
-        // Try to find existing user or create new one
-        User user = userService.findByEmail(email)
-                .orElseGet(() -> createNewUser(email, name, provider));
+        // Trying find existing user or create new
+        User user = userService.findByLogin(login)
+                .orElseGet(() -> createNewUser(email, name, login));
+        user.setEmail(email);
+        user.setUsername(name);
+        userService.update(user);
 
         // Generate tokens
         String accessToken = jwtToken.generateAccessToken(user.getUsername());
@@ -54,6 +57,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         refreshTokenCookie.setMaxAge(86400); // 1 day
         response.addCookie(refreshTokenCookie);
 
+        System.out.println("OAuth2 login success: " + user.getUsername());
+
         // Send response with user data and access token
         response.setContentType("application/json");
          String jsonResponse = String.format("""
@@ -68,8 +73,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         userDto.setEmail(email);
         userDto.setUsername(name);
         userDto.setLogin(email); // email as login for OAuth users
-        userDto.setPassword(null); // OAuth dont have password
-
+        userDto.setPassword(null); // pass will be null
         return userService.create(userDto);
     }
+    // TODO: changing pass when login throw OAuth
 }

@@ -20,16 +20,24 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        configureHttpSecurity(http);
+        return http.build();
+    }
+
+    private void configureHttpSecurity(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(
                                         "/",
+                                        "/oauth2/**",
                                         "/api/unimap_pc/check-connection",
                                         "/api/unimap_pc/authenticate/**",
                                         "/api/unimap_pc/register",
                                         "/api/unimap_pc/user/email/**",
-                                        "/api/unimap_pc/user/create"
+                                        "/api/unimap_pc/user/create",
+                                        "/login**"
+                                         // TODO: error page "/error"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )
@@ -38,10 +46,15 @@ public class SecurityConfig {
                                 .loginPage("/login")
                                 .successHandler(oAuth2AuthenticationSuccessHandler)
                                 .failureUrl("/login?error=true")
+                )
+                .logout(logout ->
+                        logout
+                                .logoutSuccessUrl("/login")
+                                .invalidateHttpSession(true)
+                                .deleteCookies("JSESSIONID", "refreshToken")
                 );
-        return http.build();
     }
-
+// TODO: IF ERR THROW ROTATE TOKENS WE NEED TO CLEAR REFRESH FROM COOKIES
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository() {
         return new InMemoryClientRegistrationRepository(

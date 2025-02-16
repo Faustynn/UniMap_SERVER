@@ -70,11 +70,11 @@ public class UserController {
     public ResponseEntity<User> getByLogin(@PathVariable String login) {
         System.out.println("A have a request with login: " + login);
 
-        User user = userService.findByLogin(login);
-        if (user == null) {
+        Optional<User> user = userService.findByLogin(login);
+        if (user.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(user.get());
     }
 
 
