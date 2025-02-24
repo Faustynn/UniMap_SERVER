@@ -1,7 +1,6 @@
 package org.main.unimapapi.services;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.main.unimapapi.entities.TokenEntity;
 import org.main.unimapapi.entities.User;
 import org.main.unimapapi.repository_queries.TokenRepositoryImpl;

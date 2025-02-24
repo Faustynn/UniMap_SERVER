@@ -30,8 +30,6 @@ public class User_dto {
     private String username;
 
     private boolean isAdmin;
-    private boolean subscribe;
-    private boolean verification;
-    private int avatar;
+    private String avatar;
 
 }

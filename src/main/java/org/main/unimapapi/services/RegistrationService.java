@@ -1,6 +1,5 @@
 package org.main.unimapapi.services;
 
-import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
 import org.main.unimapapi.repository_queries.UserRepositoryImpl;
@@ -23,8 +22,6 @@ public class RegistrationService {
                 .login(dto.getLogin())
                 .password(dto.getPassword())
                 .isAdmin(dto.isAdmin())
-                .subscribe(dto.isSubscribe())
-                .verification(dto.isVerification())
                 .avatar(dto.getAvatar())
                 .build();
         userRepository.save(user);

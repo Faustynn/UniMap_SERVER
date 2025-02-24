@@ -6,7 +6,6 @@ import org.main.unimapapi.entities.User;
 import org.main.unimapapi.repository_queries.UserRepositoryImpl;
 import org.main.unimapapi.repository_queries.TokenRepositoryImpl;
 import org.main.unimapapi.services.TokenService;
-import org.main.unimapapi.utils.JwtToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -33,7 +32,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         String email = oAuth2User.getAttribute("email");
         String name = oAuth2User.getAttribute("name");
-        String provider = oauthToken.getAuthorizedClientRegistrationId();
         String login = email;
 
         // Trying find existing user or create new
@@ -70,7 +68,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         response.getWriter().write(jsonResponse);
     }
 
-    private User createNewUser(String email, String name, String provider) {
+    private User createNewUser(String email, String name) {
         User_dto userDto = new User_dto();
         userDto.setEmail(email);
         userDto.setUsername(name);
@@ -82,8 +80,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         user.setLogin(userDto.getLogin());
         user.setPassword(userDto.getPassword());
         user.setAdmin(userDto.isAdmin());
-        user.setSubscribe(userDto.isSubscribe());
-        user.setVerification(userDto.isVerification());
         user.setAvatar(userDto.getAvatar());
         userRepository.save(user);
         return user;

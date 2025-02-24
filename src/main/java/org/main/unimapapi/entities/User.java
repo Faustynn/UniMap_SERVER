@@ -17,9 +17,6 @@ public class User {
     private String password;
     private String username;
     private boolean isAdmin;
-    private boolean subscribe;
-    private boolean verification;
-    private int avatar;
+    private String avatar;
     private List<TokenEntity> tokens;
-
 }

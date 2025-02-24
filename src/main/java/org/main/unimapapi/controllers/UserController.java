@@ -108,7 +108,7 @@ public class UserController {
                 System.err.println("User with this username already exists: " + username);
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build(); // 305
             }
-            User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, false, false, 0));
+            User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, null));
             if (user == null) {
                 System.err.println("Registration failed for user: " + login);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
