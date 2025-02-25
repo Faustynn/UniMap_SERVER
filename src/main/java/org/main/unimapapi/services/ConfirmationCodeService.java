@@ -1,7 +1,7 @@
 package org.main.unimapapi.services;
 
 import org.main.unimapapi.entities.ConfirmationCode;
-import org.main.unimapapi.repository_queries.ConfirmationCodeRepositoryImpl;
+import org.main.unimapapi.repository_queries.ConfirmationCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import java.util.Random;
 @Service
 public class ConfirmationCodeService {
     @Autowired
-    private ConfirmationCodeRepositoryImpl confirmationCodeRepository;
+    private ConfirmationCodeRepository confirmationCodeRepository;
 
     public Optional<ConfirmationCode> findByUserId(Long userId) {
         return confirmationCodeRepository.findByUserId(userId);

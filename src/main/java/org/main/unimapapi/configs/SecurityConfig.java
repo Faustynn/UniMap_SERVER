@@ -37,6 +37,7 @@ public class SecurityConfig {
                                         "/api/unimap_pc/register",
                                         "/api/unimap_pc/user/email/**",
                                         "/api/unimap_pc/user/create",
+                                        "/api/unimap_pc/refresh",
                                         "/login**"
                                          // TODO: error page "/error"
                                 ).permitAll()

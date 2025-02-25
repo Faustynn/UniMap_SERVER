@@ -3,7 +3,7 @@ package org.main.unimapapi.services;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repository_queries.UserRepositoryImpl;
+import org.main.unimapapi.repository_queries.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class UserService {
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
 
     public User create(User_dto dto) {
         User user = new User();

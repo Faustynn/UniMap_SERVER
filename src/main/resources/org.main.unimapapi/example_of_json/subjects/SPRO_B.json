@@ -1,0 +1,38 @@
+{
+    "code": "SPRO_B",
+    "name": "Špecifikačné prostriedky",
+    "type": "povinne voliteľný",
+    "credits": 6,
+    "studyType": "bakalársky",
+    "semester": "ZS",
+    "languages": ["sk", "eng"],
+    "completionType": "skúška",
+    "studentCount": 213,
+    "evaluation": {
+        "A": 5.6,
+        "B": 21.1,
+        "C": 32.9,
+        "D": 22.1,
+        "E": 7.5,
+        "Fx": 10.8
+    },
+    "assesmentMethods": "Pre predmet platia univerzitné a fakultné podmienky absolvovania a hodnotenia predmetov. Účasť na prednáškach a cvičeniach je povinná. Študent musí vypracovať všetky časti projektu podľa zadania a odovzdať ich v priebehu obdobia výučby. V opačnom prípade, študent bude hodnotený známkou FX.\nNenulový počet bodov študent môže získať len za časti projektu odovzdané najneskôr v stanovených termínoch požadovaným spôsobom.\nŠtudent, ktorý sa dopustí plagiátorstva v predmete v hocijakom rozsahu, bude hodnotený známkou FX.\nV priebehu semestra je možné získať celkovo 60 bodov, konkrétne za:\n- vypracovanie malých zadaní - 10 bodov (5-krát 2 body)\n- seminárna téma a prezentácia, ktorej výsledkom je cvičiacim schválené zadanie semestrálneho projektu - 10 bodov\n- semestrálny projekt - 40 bodov\nTermíny:\n- malé zadania - prvých 5 týždňov\n- prezentácia seminárnej témy - 6. týždeň\n- semestrálny projekt - 12. týždeň\nPodmienkou na pripustenie ku skúške je získať minimálne 30 bodov z 60 a zároveň nemať žiadnu neospravedlnenú absenciu.\nSkúška - 40 bodov.\nNa úspešné ukončenie predmetu je potrebné získať minimálne 56 bodov z maximálneho bodového hodnotenia (zo 100 bodov), z toho minimálne 10 bodov za skúšku.",
+    "learningOutcomes": "Predmet je venovaný základným prostriedkom pre formálnu špecifikáciu a modelovanie digitálnych systémov a ich komunikačných rozhraní. Podrobnejšie sa zaoberá štandardnými jazykmi RTL pre opis technických prostriedkov digitálnych systémov -- Verilog a SystemVerilog, špecifikačným nástrojom na opis správania rozličných počítačových, komunikačných a bezpečnostných systémov, opisom komunikačných rozhraní, verifikáciou RTL opisu digitálneho systému na základe špecifikácie požiadaviek a syntézou RTL opisu digitálneho systému do technológie hradlových polí (FPGA).\nPredmet poskytuje základné špecifikačné prostriedky pre ďalšie predmety študijných programov Internetové technológie a Informačná Bezpečnosť. Poznatky získané z tohto predmetu sú vhodné nielen pre hardvérovo-zameraných študentov, ale aj pre zameranie počítačové a komunikačné siete a takziež pre zameranie počítačovú bezpečnosť.\nÚspešné absolvovanie predmetu vyžaduje poznatky z logických systémov a základné poznatky z matematickej logiky.",
+    "courseContents": "Digitálny systém, jeho modely, úrovne abstrakcie a špecifikácia požiadaviek\nJazyk Verilog a jeho využitie\nJazyk SystemVerilog a jeho využitie\nSimulácia a verifikácia digitálnych systémov\nProgramovateľné hradlové polia (FPGA) a syntéza do FPGA\nKomunikačné rozhrania, siete, počítačová bezpečnosť a spôsoby ich opisu",
+    "plannedActivities": "Predmet je rozdelený na prednášky a cvičenia. Prednášky sú realizované v štandardnom režime v priebehu semestra a pripravujú teoretickú bázu predmetu. Cvičenia sú venované najmä práci na jednoduchých zadaniach a semestrálnom projekte, kde si študenti prakticky precvičia návrh modelov správania a štruktúry digitálnych systémov a automatickú syntézu do FPGA obvodov.",
+    "evaluationMethods": "Malé zadania - 10% z celkového hodnotenia predmetu.\nSeminárna téma a prezentácia - 10% z celkového hodnotenia predmetu.\nSemestrálny projekt - 40% z celkového hodnotenia predmetu.\nSkúška - 40% z celkového hodnotenia predmetu.",
+    "teachers": [
+        {
+            "aisId": 5813,
+            "name": "doc. Ing. Lukáš Kohútka, PhD.",
+            "roles": ["prednášajúci", "skúšajúci", "zodpovedný za predmet"],
+            "languages": ["slovenský jazyk"]
+        },
+        {
+            "aisId": 92443,
+            "name": "RIng. Ján Mach",
+            "roles": ["cvičiaci"],
+            "languages": ["slovenský jazyk"]
+        }
+    ]
+}

@@ -2,16 +2,16 @@ package org.main.unimapapi.services;
 
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repository_queries.UserRepositoryImpl;
+import org.main.unimapapi.repository_queries.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RegistrationService {
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public RegistrationService(UserRepositoryImpl userRepository) {
+    public RegistrationService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

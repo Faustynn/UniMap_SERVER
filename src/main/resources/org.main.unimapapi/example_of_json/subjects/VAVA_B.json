@@ -1,0 +1,30 @@
+{
+    "name": "Vývoj aplikácií s viacvrstvovou architektúrou",
+    "code": "VAVA_B",
+    "type": "povinne voliteľný",
+    "credits": 6,
+    "studyType": "bakalársky",
+    "semester": "LS",
+    "languages": ["sk", "eng"],
+    "completionType": "skúška",
+    "studentCount": 772,
+    "evaluation": {
+        "A": 30.8,
+        "B": 22.9,
+        "C": 19.2,
+        "D": 14.9,
+        "E": 8.9,
+        "Fx": 3.3
+    },
+    "assesmentMethods": "70% formou samostatnej práce v podobe implementácie a jednoduchej dokumentácie prototypu postaveného na vybraných technológiách JAVA a DBMS",
+    "learningOutcomes": "- Získať prehľad o platforme Java (Java Standard Edition), jej architektúre, štruktúre a vlastnostiach.\n- Zdokonaliť sa vo vývoji programov pre platformu Java (Java Standard Edition).\n- Nadobudnúť zručnosti vo využívaní vybraných rozhraní a rozširujúcich knižníc platformy Java (Java Standard Edition).\n- Pripraviť sa na neskorší vývoj rozsiahlych viacvrstvových enterprise aplikácií.\n- Používať jazyk ArchiMate a rámec TOGAF pri modelovaní viacvrstvových aplikácií.\n- Zasadenie Java v kontexte JEE a .NET technológií.",
+    "courseContents": "1. Štruktúra platformy Java\n2. Java vývojové technológie a štandardy\n3. Vybrané kapitoly/detaily Java Standard Edition API (napr. Collections, Logging, Localization, XML, I/O, Regular Expressions)\n4. Databázy, JDBC, jazyk SQL v Jave\n5. Prehľad JEE a .NET technológií a architektúr",
+    "teachers": [
+        {
+            "aisId": 1234,
+            "name": "RNDr. Mgr. Ing. Miroslav Reiter, MBA",
+            "roles": ["cvičiaci", "prednášajúci", "skúšajúci", "zodpovedný za predmet"],
+            "languages": []
+        }
+    ]
+}

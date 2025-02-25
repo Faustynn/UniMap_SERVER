@@ -1,6 +1,6 @@
 config.properties
 unimapapi_latest.tar
-
+Dockerfile
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar

@@ -3,9 +3,7 @@ package org.main.unimapapi.utils;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repository_queries.UserRepositoryImpl;
-import org.main.unimapapi.repository_queries.TokenRepositoryImpl;
-import org.main.unimapapi.services.TokenService;
+import org.main.unimapapi.repository_queries.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -21,9 +19,8 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
     private final JwtToken jwtToken;
-    private final TokenRepositoryImpl tokenRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -36,7 +33,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         // Trying find existing user or create new
         Optional<User> userOptional = userRepository.findByLogin(login);
-        User user = userOptional.orElseGet(() -> createNewUser(email, name, login));
+        User user = userOptional.orElseGet(() -> createNewUser(email, login));
         user.setEmail(email);
         user.setUsername(name);
         userRepository.update(user);
@@ -46,8 +43,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String refreshToken = jwtToken.generateRefreshToken(user.getUsername());
 
         // Save refresh token
-        TokenService tokenService = new TokenService(tokenRepository, jwtToken);
-        tokenService.saveUserToken(user, refreshToken);
+     //   TokenService tokenService = new TokenService(tokenRepository, jwtToken);
+   //     tokenService.saveUserToken(user, refreshToken);
 
         // Set refresh token cookie
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
@@ -74,10 +71,13 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         userDto.setUsername(name);
         userDto.setLogin(email); // email as login for OAuth users
         userDto.setPassword(null); // pass will be null
+        userDto.setAdmin(false);
+        userDto.setAvatar(null);
+
         User user = new User();
         user.setEmail(userDto.getEmail());
         user.setUsername(userDto.getUsername());
-        user.setLogin(userDto.getLogin());
+        user.setLogin(userDto.getUsername());
         user.setPassword(userDto.getPassword());
         user.setAdmin(userDto.isAdmin());
         user.setAvatar(userDto.getAvatar());

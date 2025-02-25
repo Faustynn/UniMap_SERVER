@@ -2,7 +2,7 @@ package org.main.unimapapi.services;
 
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repository_queries.UserRepositoryImpl;
+import org.main.unimapapi.repository_queries.UserRepository;
 import org.main.unimapapi.utils.Hashing;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class AuthService {
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
 
     public User authenticate(String login, String password) throws Exception {
         Optional<User> user = userRepository.findByLogin(login);

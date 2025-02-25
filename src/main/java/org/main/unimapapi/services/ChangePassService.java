@@ -1,7 +1,7 @@
 package org.main.unimapapi.services;
 
 import org.main.unimapapi.entities.User;
-import org.main.unimapapi.repository_queries.UserRepositoryImpl;
+import org.main.unimapapi.repository_queries.UserRepository;
 import org.main.unimapapi.utils.Hashing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,10 +11,10 @@ import java.util.Optional;
 
 @Service
 public class ChangePassService {
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public ChangePassService(UserRepositoryImpl userRepository) {
+    public ChangePassService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

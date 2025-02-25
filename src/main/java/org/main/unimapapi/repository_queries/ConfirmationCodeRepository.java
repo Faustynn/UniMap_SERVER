@@ -8,11 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public class ConfirmationCodeRepositoryImpl {
+public class ConfirmationCodeRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 

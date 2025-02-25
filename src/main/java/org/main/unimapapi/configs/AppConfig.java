@@ -83,4 +83,5 @@ public class AppConfig {
     public static String getOauth2Facebook_id() {
         return properties.getProperty("oauth2-id-facebook");
     }
+
 }
