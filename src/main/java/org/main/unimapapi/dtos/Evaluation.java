@@ -1,4 +1,4 @@
-package org.main.unimapapi.entities;
+package org.main.unimapapi.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class EvaluationEntity {
+public class Evaluation {
     private String grade;
     private Integer percentage;
 

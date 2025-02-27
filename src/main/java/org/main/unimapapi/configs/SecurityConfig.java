@@ -32,13 +32,14 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/",
                                         "/oauth2/**",
+                                        "/login**",
                                         "/api/unimap_pc/check-connection",
                                         "/api/unimap_pc/authenticate/**",
                                         "/api/unimap_pc/register",
                                         "/api/unimap_pc/user/email/**",
                                         "/api/unimap_pc/user/create",
                                         "/api/unimap_pc/refresh",
-                                        "/login**"
+                                        "/api/unimap_pc/resources/**"
                                          // TODO: error page "/error"
                                 ).permitAll()
                                 .anyRequest().authenticated()

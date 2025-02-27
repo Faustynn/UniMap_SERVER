@@ -76,6 +76,19 @@ public class JwtToken {
             return false;
         }
     }
+
+
+    public boolean validateAccessToken(String token) {
+        String username = extractUsernameFromAccessToken(token);
+        try {
+            Claims claims = extractClaims(token, getAccessSigningKey());
+            return claims.getSubject().equals(username) &&
+                    !claims.getExpiration().before(new Date());
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
     public boolean validateRefreshToken(String token, String username) {
         try {
             Claims claims = extractClaims(token, getRefreshSigningKey());

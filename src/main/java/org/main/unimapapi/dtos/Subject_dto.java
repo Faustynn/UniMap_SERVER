@@ -1,4 +1,4 @@
-package org.main.unimapapi.entities;
+package org.main.unimapapi.dtos;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Subject {
+public class Subject_dto {
     private String code;
     private String name;
     private String type;
@@ -19,11 +19,19 @@ public class Subject {
     private List<String> languages;
     private String completionType;
     private long studentCount;
-    private List<EvaluationEntity> evaluation;
+    private List<Evaluation> evaluation;
     private String assesmentMethods;
     private String learningOutcomes;
     private String courseContents;
     private String plannedActivities;
     private String evaluationMethods;
-    private List<SubjectTeacherEntity> teacherList;
+
+    private String ascore;
+    private String bscore;
+    private String cscore;
+    private String dscore;
+    private String escore;
+    private String FXscore;
+
+
 }

@@ -1,4 +1,4 @@
-package org.main.unimapapi.entities;
+package org.main.unimapapi.dtos;
 
 import lombok.*;
 

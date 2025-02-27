@@ -1,4 +1,4 @@
-package org.main.unimapapi.entities;
+package org.main.unimapapi.dtos;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Teacher {
+public class Teacher_dto {
     private String id;
     private String name;
     private String email;
