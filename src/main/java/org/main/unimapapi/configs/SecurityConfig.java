@@ -39,7 +39,8 @@ public class SecurityConfig {
                                         "/api/unimap_pc/user/email/**",
                                         "/api/unimap_pc/user/create",
                                         "/api/unimap_pc/refresh",
-                                        "/api/unimap_pc/resources/**"
+                                        "/api/unimap_pc/resources/**",
+                                         "/api/unimap_pc/news/all"
                                          // TODO: error page "/error"
                                 ).permitAll()
                                 .anyRequest().authenticated()
