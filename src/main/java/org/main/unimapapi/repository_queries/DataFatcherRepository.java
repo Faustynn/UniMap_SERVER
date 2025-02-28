@@ -34,7 +34,7 @@ public class DataFatcherRepository {
             subject.setSemester(rs.getString("semester"));
             subject.setLanguages(Arrays.asList(rs.getString("languages").split(",")));
             subject.setCompletionType(rs.getString("completion_type"));
-            subject.setStudentCount(rs.getLong("student_count"));
+            subject.setStudentCount(rs.getInt("student_count"));
             subject.setAssesmentMethods(rs.getString("assesment_methods"));
             subject.setLearningOutcomes(rs.getString("learning_outcomes"));
             subject.setCourseContents(rs.getString("course_contents"));
