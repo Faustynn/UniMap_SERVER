@@ -1,7 +1,6 @@
 package org.main.unimapapi.repository_queries;
 
 import org.main.unimapapi.dtos.Subject_dto;
-import org.main.unimapapi.dtos.News_dto;
 import org.main.unimapapi.dtos.TeacherSubjectRoles;
 import org.main.unimapapi.dtos.Teacher_dto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,23 +49,6 @@ public class DataFatcherRepository {
             return subject;
         }
     };
-
-    private final RowMapper<News_dto> NewsRowMapper = new RowMapper<News_dto>() {
-        @Override
-        public News_dto mapRow(ResultSet rs, int rowNum) throws SQLException {
-            News_dto article = new News_dto();
-            article.setId(rs.getInt("id"));
-            article.setTitle(rs.getString("title"));
-            article.setContent(rs.getString("content"));
-            article.setDate_of_creation(rs.getString("date_of_creation"));
-            return article;
-        }
-    };
-
-    public List<News_dto> fetchAllNews(){
-        String sql = "select * from news";
-        return jdbcTemplate.query(sql, NewsRowMapper);
-    }
 
     public List<Subject_dto> fetchAllSubjects() {
         String sql = "SELECT \n" +
@@ -145,5 +127,9 @@ public class DataFatcherRepository {
                 "\ttea_sub.roles";
         return jdbcTemplate.query(sql, TeachersRowMapper);
     }
+
+
+
+
 
 }
