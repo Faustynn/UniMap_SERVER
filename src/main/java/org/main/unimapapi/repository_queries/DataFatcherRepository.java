@@ -11,7 +11,9 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class DataFatcherRepository {
@@ -91,7 +93,25 @@ public class DataFatcherRepository {
             teacher.setEmail(rs.getString("email"));
             teacher.setPhone(rs.getString("phone"));
             teacher.setOffice(rs.getString("office"));
-            teacher.setSubjects(fetchSubjectsByTeacherId(rs.getString("id")));
+
+            String subjectCodes = rs.getString("subject_codes");
+            String roles = rs.getString("roles");
+
+            if (subjectCodes != null && roles != null) {
+                List<TeacherSubjectRoles> subjects = Arrays.stream(subjectCodes.split(","))
+                        .map(code -> {
+                            TeacherSubjectRoles tsr = new TeacherSubjectRoles();
+                            tsr.setSubjectName(code);
+                            tsr.setRoles(Arrays.asList(roles.split(",")));
+                            return tsr;
+                        })
+                        .collect(Collectors.toList());
+                teacher.setSubjects(subjects);
+            } else {
+                teacher.setSubjects(Collections.emptyList());
+            }
+
+
             return teacher;
         }
     };
@@ -114,17 +134,12 @@ public class DataFatcherRepository {
 
 
     public List<Teacher_dto> fetchAllTeachers() {
-        String sql = "SELECT tea.*,\n" +
-                "\t\ttea_sub.subject_code,\n" +
-                "\t\ttea_sub.roles\n" +
-                "FROM \n" +
-                "\tteachers tea\n" +
-                "LEFT JOIN\n" +
-                "\tteacher_subject_roles tea_sub ON tea.id = tea_sub.teacher_id\n" +
-                "GROUP BY\n" +
-                "\ttea.id,\n" +
-                "\ttea_sub.subject_code,\n" +
-                "\ttea_sub.roles";
+        String sql = "SELECT tea.id, tea.name, tea.email, tea.phone, tea.office,\n" +
+                "       STRING_AGG(tea_sub.subject_code::text, ',') AS subject_codes,\n" +
+                "       STRING_AGG(tea_sub.roles::text, ',') AS roles\n" +
+                "FROM teachers tea\n" +
+                "         LEFT JOIN teacher_subject_roles tea_sub ON tea.id = tea_sub.teacher_id\n" +
+                "GROUP BY tea.id, tea.name, tea.email, tea.phone, tea.office;";
         return jdbcTemplate.query(sql, TeachersRowMapper);
     }
 

@@ -38,10 +38,10 @@ public class CommentsController {
         }
     };
 
-    @GetMapping("/{subject_id}")
+    @GetMapping("/subject/{subject_id}")
     public ResponseEntity<List<Comment_dto>> getAllSubjectsComments() {
         try {
-            String sql = "SELECT * FROM comments_subjects";
+            String sql = "SELECT * FROM comments_subjects WHERE subject_code = ?";
             List<Comment_dto> subjectsList = jdbcTemplate.query(sql, subjectsRowMapper);
             return ResponseEntity.ok(subjectsList);
         } catch (Exception e) {
@@ -50,10 +50,10 @@ public class CommentsController {
         }
     }
 
-    @GetMapping("/{teacher_id}")
+    @GetMapping("/teacher/{teacher_id}")
     public ResponseEntity<List<Comment_dto>> getAllTeachersComments() {
         try {
-            String sql = "SELECT * FROM comments_teachers";
+            String sql = "SELECT * FROM comments_teachers WHERE teachers_id = ?";
             List<Comment_dto> teachersList = jdbcTemplate.query(sql, subjectsRowMapper);
             return ResponseEntity.ok(teachersList);
         } catch (Exception e) {

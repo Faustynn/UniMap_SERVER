@@ -40,8 +40,10 @@ public class SecurityConfig {
                                         "/api/unimap_pc/user/create",
                                         "/api/unimap_pc/refresh",
                                         "/api/unimap_pc/resources/**",
-                                         "/api/unimap_pc/news/all"
-                                         // TODO: error page "/error"
+                                        "/api/unimap_pc/comments/teacher/**",
+                                        "/api/unimap_pc/comments/subject/**",
+                                        "/api/unimap_pc/news/all"
+                                         // TOD O: error page "/error"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                 )
