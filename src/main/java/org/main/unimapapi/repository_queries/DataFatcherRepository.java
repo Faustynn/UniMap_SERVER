@@ -94,19 +94,14 @@ public class DataFatcherRepository {
             teacher.setPhone(rs.getString("phone"));
             teacher.setOffice(rs.getString("office"));
 
-            String subjectCodes = rs.getString("subject_codes");
+            String subjectCode = rs.getString("subject_code");
             String roles = rs.getString("roles");
 
-            if (subjectCodes != null && roles != null) {
-                List<TeacherSubjectRoles> subjects = Arrays.stream(subjectCodes.split(","))
-                        .map(code -> {
-                            TeacherSubjectRoles tsr = new TeacherSubjectRoles();
-                            tsr.setSubjectName(code);
-                            tsr.setRoles(Arrays.asList(roles.split(",")));
-                            return tsr;
-                        })
-                        .collect(Collectors.toList());
-                teacher.setSubjects(subjects);
+            if (subjectCode != null && roles != null) {
+                TeacherSubjectRoles tsr = new TeacherSubjectRoles();
+                tsr.setSubjectName(subjectCode);
+                tsr.setRoles(Arrays.asList(roles.split(",")));
+                teacher.setSubjects(Collections.singletonList(tsr));
             } else {
                 teacher.setSubjects(Collections.emptyList());
             }
@@ -135,11 +130,10 @@ public class DataFatcherRepository {
 
     public List<Teacher_dto> fetchAllTeachers() {
         String sql = "SELECT tea.id, tea.name, tea.email, tea.phone, tea.office,\n" +
-                "       STRING_AGG(tea_sub.subject_code::text, ',') AS subject_codes,\n" +
-                "       STRING_AGG(tea_sub.roles::text, ',') AS roles\n" +
+                "       tea_sub.subject_code, tea_sub.roles\n" +
                 "FROM teachers tea\n" +
-                "         LEFT JOIN teacher_subject_roles tea_sub ON tea.id = tea_sub.teacher_id\n" +
-                "GROUP BY tea.id, tea.name, tea.email, tea.phone, tea.office;";
+                "LEFT JOIN teacher_subject_roles tea_sub ON tea.id = tea_sub.teacher_id\n" +
+                "ORDER BY tea.id;";
         return jdbcTemplate.query(sql, TeachersRowMapper);
     }
 
