@@ -42,6 +42,8 @@ public class SecurityConfig {
                                         "/api/unimap_pc/resources/**",
                                         "/api/unimap_pc/comments/teacher/**",
                                         "/api/unimap_pc/comments/subject/**",
+                                         "/api/unimap_pc/comments/subject",
+                                        "/api/unimap_pc/comments/teacher",
                                         "/api/unimap_pc/news/all"
                                          // TOD O: error page "/error"
                                 ).permitAll()
