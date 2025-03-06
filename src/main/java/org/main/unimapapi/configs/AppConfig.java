@@ -2,6 +2,7 @@ package org.main.unimapapi.configs;
 
 
 import lombok.Getter;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
@@ -23,9 +24,11 @@ public class AppConfig {
             if (input != null) {
                 properties.load(input);
             } else {
+                ServerLogger.logServer(ServerLogger.Level.ERROR, "config.properties file is missing.");
                 throw new RuntimeException("config.properties file is null");
             }
         } catch (IOException ex) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Failed to load application.properties: " + ex.getMessage());
             throw new RuntimeException("Failed to load application.properties: " + ex.getMessage(), ex);
         }
     }
@@ -82,6 +85,9 @@ public class AppConfig {
     }
     public static String getOauth2Facebook_id() {
         return properties.getProperty("oauth2-id-facebook");
+    }
+    public static String getLogLevel() {
+        return properties.getProperty("LOG_LEVEL", "INFO");
     }
 
 }

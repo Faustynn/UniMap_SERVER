@@ -21,6 +21,7 @@ public class UserService {
         user.setPassword(dto.getPassword());
         user.setUsername(dto.getUsername());
         user.setAdmin(dto.isAdmin());
+        user.setPremium(dto.isPremium());
         user.setAvatar(dto.getAvatar());
         userRepository.save(user);
         return user;

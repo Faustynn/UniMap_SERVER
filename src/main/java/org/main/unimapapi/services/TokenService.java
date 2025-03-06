@@ -20,6 +20,10 @@ public class TokenService {
     public boolean validateAccessToken(String accessToken, User user) {
         return jwtToken.validateAccessToken(accessToken, user.getUsername());
     }
+    public boolean validateAccessToken(String accessToken, String username) {
+        return jwtToken.validateAccessToken(accessToken, username);
+    }
+
 
     public String getLoginFromRefreshToken(String refreshToken) {
         return jwtToken.extractUsernameFromRefreshToken(refreshToken);

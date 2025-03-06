@@ -50,7 +50,8 @@ public class EmailSender {
                 Transport.send(message);
                 System.out.println("Mail successfully sent");
             } catch (MessagingException mex) {
-                mex.printStackTrace();
+                ServerLogger.logServer(ServerLogger.Level.ERROR, "Failed to send email to " + recipient + ": " + mex.getMessage());
+                //mex.printStackTrace();
             }
         };
         Thread emailThread = new Thread(emailTask);

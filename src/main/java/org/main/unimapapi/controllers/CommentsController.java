@@ -2,17 +2,18 @@ package org.main.unimapapi.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.Comment_dto;
+import org.main.unimapapi.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.main.unimapapi.services.TokenService;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -20,6 +21,7 @@ import java.util.List;
 @RequestMapping("/api/unimap_pc/comments")
 public class CommentsController {
     private final JdbcTemplate jdbcTemplate;
+    private final TokenService tokenService;
 
     private final RowMapper<Comment_dto> subjectsRowMapper = new RowMapper<Comment_dto>() {
         @Override
@@ -27,22 +29,37 @@ public class CommentsController {
             Comment_dto comment = new Comment_dto();
 
             comment.setUser_id(rs.getInt("user_id"));
+            comment.setComment_id(rs.getInt("comment_id"));
+            comment.setName(rs.getString("name"));
             comment.setDescription(rs.getString("description"));
-            comment.setRating(rs.getInt("rating"));
+            comment.setRating(rs.getString("rating"));
+            comment.setLevelAccess(rs.getInt("levelaccess"));
 
-            if(rs.getString("subject_code") != null) {
+            if (hasColumn(rs, "subject_code")) {
                 comment.setLooking_id(rs.getString("subject_code"));
-            }else{comment.setLooking_id(rs.getString("teacher_id"));}
+            } else if (hasColumn(rs, "teacher_id")) {
+                comment.setLooking_id(rs.getString("teacher_id"));
+            }
 
             return comment;
         }
     };
-
-    @GetMapping("/{subject_id}")
-    public ResponseEntity<List<Comment_dto>> getAllSubjectsComments() {
+    private boolean hasColumn(ResultSet rs, String columnName) throws SQLException {
         try {
-            String sql = "SELECT * FROM comments_subjects";
-            List<Comment_dto> subjectsList = jdbcTemplate.query(sql, subjectsRowMapper);
+            rs.findColumn(columnName);
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+    @GetMapping("/subject/{subject_id}")
+    public ResponseEntity<List<Comment_dto>> getAllSubjectsComments(@PathVariable String subject_id) {
+        try {
+            String sql = "SELECT u_d.name, c_s.*\n" +
+                    "FROM comments_subjects c_s\n" +
+                    "    INNER JOIN user_data u_d ON c_s.user_id = u_d.id\n" +
+                    "WHERE c_s.subject_code = ?";
+            List<Comment_dto> subjectsList = jdbcTemplate.query(sql, new Object[]{subject_id}, subjectsRowMapper);
             return ResponseEntity.ok(subjectsList);
         } catch (Exception e) {
             e.printStackTrace();
@@ -50,15 +67,104 @@ public class CommentsController {
         }
     }
 
-    @GetMapping("/{teacher_id}")
-    public ResponseEntity<List<Comment_dto>> getAllTeachersComments() {
+    @GetMapping("/teacher/{teacher_id}")
+    public ResponseEntity<List<Comment_dto>> getAllTeachersComments(@PathVariable String teacher_id) {
         try {
-            String sql = "SELECT * FROM comments_teachers";
-            List<Comment_dto> teachersList = jdbcTemplate.query(sql, subjectsRowMapper);
+            String sql = "SELECT u_d.name, c_t.*\n" +
+                    "FROM comments_teachers c_t\n" +
+                    "    INNER JOIN user_data u_d ON c_t.user_id = u_d.id\n" +
+                    "WHERE c_t.teacher_id = ?";
+            List<Comment_dto> teachersList = jdbcTemplate.query(sql, new Object[]{teacher_id}, subjectsRowMapper);
             return ResponseEntity.ok(teachersList);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+
+
+    @PostMapping("/subject")
+    public ResponseEntity<Void> addNewSubjectComment(@RequestBody Map<String, Object> payload, @RequestHeader("Authorization") String accessToken) {
+        try {
+            // Validate access token
+            String token = accessToken.replace("Bearer ", "");
+            String username = tokenService.getLoginFromAccessToken(token);
+            if (!tokenService.validateAccessToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            // Extract data from JSON payload
+            int userId = Integer.parseInt((String) payload.get("user_id"));
+            String subjectCode = (String) payload.get("code");
+            String description = (String) payload.get("text");
+            int rating = (int) payload.get("rating");
+            int levelAccess = Integer.parseInt((String) payload.get("levelAccess"));
+
+            System.out.println("New comment with datas" + userId+subjectCode+description+rating+levelAccess);
+            // Insert data into the database
+            String sql = "INSERT INTO comments_subjects (user_id, subject_code, description, rating, levelaccess) VALUES (?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sql, userId, subjectCode, description, rating, levelAccess);
+
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/teacher")
+    public ResponseEntity<Void> addNewTeacherComment(@RequestBody Map<String, Object> payload, @RequestHeader("Authorization") String accessToken)  {
+        try {
+            // Validate access token
+            String token = accessToken.replace("Bearer ", "");
+            String username = tokenService.getLoginFromAccessToken(token);
+            if (!tokenService.validateAccessToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            // Extract data from JSON payload
+            int userId = Integer.parseInt((String) payload.get("user_id"));
+            String teacher_id = (String) payload.get("code");
+            String description = (String) payload.get("text");
+            int rating = (int) payload.get("rating");
+            int levelAccess = Integer.parseInt((String) payload.get("levelAccess"));
+
+            System.out.println("New comment with datas" + userId+teacher_id+description+rating+levelAccess);
+
+            String sql = "INSERT INTO comments_teachers (user_id, teacher_id, description, rating, levelaccess) VALUES (?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sql, userId, teacher_id, description, rating, levelAccess);
+
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+
+
+    @DeleteMapping("/subject/{comment_id}")
+    public ResponseEntity<Void> deleteSubjectComment(@PathVariable int comment_id) {
+        try {
+            String sql = "DELETE FROM comments_subjects WHERE comment_id = ?";
+            jdbcTemplate.update(sql, comment_id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @DeleteMapping("/teacher/{comment_id}")
+    public ResponseEntity<Void> deleteTeacherComment(@PathVariable int comment_id) {
+        try {
+            String sql = "DELETE FROM comments_teachers WHERE comment_id = ?";
+            jdbcTemplate.update(sql, comment_id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }

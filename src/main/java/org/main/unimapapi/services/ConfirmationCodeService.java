@@ -13,17 +13,10 @@ public class ConfirmationCodeService {
     @Autowired
     private ConfirmationCodeRepository confirmationCodeRepository;
 
-    public Optional<ConfirmationCode> findByUserId(Long userId) {
-        return confirmationCodeRepository.findByUserId(userId);
-    }
-
     public void save(ConfirmationCode confirmationCode) {
         confirmationCodeRepository.save(confirmationCode);
     }
 
-    public void deleteByUserId(Long userId) {
-        confirmationCodeRepository.deleteByUserId(userId);
-    }
 
     public static String generateRandomCode() {
         Random random = new Random();
@@ -35,7 +28,16 @@ public class ConfirmationCodeService {
     }
 
     public boolean validateConfirmationCode(Long userId, String code) {
-        Optional<ConfirmationCode> confirmationCode = findByUserId(userId);
-        return confirmationCode.isPresent() && confirmationCode.get().getCode().equals(code);
+        try {
+            System.out.println("VALIDATE CONFIRMATION CODE "+userId+" "+code);
+            if (confirmationCodeRepository.find(userId,code)) {
+                confirmationCodeRepository.deleteByUserId(userId,code);
+                return true;
+            }
+            return false;
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

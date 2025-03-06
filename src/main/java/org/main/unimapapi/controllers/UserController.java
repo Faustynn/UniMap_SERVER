@@ -4,16 +4,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
+import org.main.unimapapi.entities.ConfirmationCode;
 import org.main.unimapapi.entities.User;
 import org.main.unimapapi.services.*;
+import org.main.unimapapi.utils.EmailSender;
 import org.main.unimapapi.utils.Hashing;
 import org.main.unimapapi.utils.JwtToken;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseCookie;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -24,40 +28,52 @@ public class UserController {
     private final UserService userService;
     private final RegistrationService registrationService;
     private final AuthService authService;
-    private final TokenService tokenService;
+    private final ConfirmationCodeService confirmationCodeService;
     private final JwtToken jwtToken;
-    ConfirmationCodeService ConfirmationCodeService;
 
     @PostMapping("register")
     public ResponseEntity<User> register(@RequestBody String jsonData) {
         try {
+            System.out.println("TEST "+jsonData);
+
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
 
             String data = jsonNode.get("data").asText();
             String[] parts = data.split(":");
             if (parts.length != 4) {
+                //ServerLogger.logServer(ServerLogger.Level.WARNING, "Invalid registration data format.");
+
+                System.out.println("TEST2");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
             String username = parts[0];
-            String password = parts[1];
+            String password = parts[2];
             String passwordHash = Hashing.hashPassword(password);
-            String login = parts[3];
-            String email = parts[2];
+            String login = parts[1];
+            String email = parts[3];
 
+            ServerLogger.logServer(ServerLogger.Level.INFO, "Registration attempt: username=" + username + ", email=" + email + ", login=" + login);
+
+            System.out.println("TEST3");
             if (userService.findByLogin(login).isPresent() ||
-                    userService.findByEmail(email).isPresent() ||
-                    userService.findByUsername(username).isPresent()) {
+                    userService.findByEmail(email).isPresent()) {
+                 //ServerLogger.logServer(ServerLogger.Level.WARNING, "Registration failed: User already exists (login=" + login + ", email=" + email + ")");
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build();
             }
+            User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, false,null));
 
-            User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, null));
+            System.out.println("TEST4 "+user.getLogin()+" "+user.getEmail()+" "+user.getPassword()+" "+user.getUsername());
+
             if (user == null) {
+                ServerLogger.logServer(ServerLogger.Level.ERROR, "Registration failed: User object is null.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
+            //ServerLogger.logServer(ServerLogger.Level.INFO, "User registered successfully: login=" + login);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Registration error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -102,6 +118,25 @@ public class UserController {
         }
     }
 
+    @GetMapping("user/email/{email}")
+    public ResponseEntity<Void> confirmEmailExists(@PathVariable String email) {
+        try {
+            Optional<User> user = userService.findByEmail(email);
+            if (user.isPresent()) {
+                String confirmationCode = confirmationCodeService.generateRandomCode();
+                LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(1);
+                ConfirmationCode confirmationCodeEntity = new ConfirmationCode(user.get().getId(), confirmationCode, expirationTime);
+                confirmationCodeService.save(confirmationCodeEntity);
+                EmailSender.sendEmail(email, confirmationCode);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PostMapping("user/email/password")
     public ResponseEntity<Void> changePassword(@RequestBody String jsonData) {
         try {
@@ -110,6 +145,7 @@ public class UserController {
             String data = jsonNode.get("data").asText();
             String[] parts = data.split(":");
 
+            System.out.println("TEST "+data);
             if (parts.length != 2) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
@@ -142,12 +178,18 @@ public class UserController {
             String email = parts[0];
             String userCode = parts[1];
 
+            System.out.println("TEST "+data);
+
             Optional<User> user = userService.findByEmail(email);
             Long id = user.map(User::getId).orElse(null);
 
-            boolean isCodeValid = ConfirmationCodeService.validateConfirmationCode(id, userCode);
+            System.out.println("TEST2 "+id +" "+userCode);
+
+            boolean isCodeValid = confirmationCodeService.validateConfirmationCode(id, userCode);
+            System.out.println("TEST3 "+isCodeValid);
             return ResponseEntity.ok(isCodeValid);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

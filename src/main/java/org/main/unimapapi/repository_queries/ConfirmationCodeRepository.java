@@ -8,12 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public class ConfirmationCodeRepository {
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private final RowMapper<ConfirmationCode> confirmationCodeRowMapper = new RowMapper<ConfirmationCode>() {
         @Override
@@ -26,18 +27,24 @@ public class ConfirmationCodeRepository {
         }
     };
 
-    public Optional<ConfirmationCode> findByUserId(Long userId) {
-        String sql = "SELECT * FROM confirm_codes WHERE id_code = ?";
-        return jdbcTemplate.query(sql, confirmationCodeRowMapper, userId).stream().findFirst();
+    public ConfirmationCodeRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
+    public boolean find(Long userId, String code) {
+    String sql = "SELECT * FROM confirm_codes WHERE id_code = ? and code = ?";
+    List<ConfirmationCode> results = jdbcTemplate.query(sql, confirmationCodeRowMapper, userId, code);
+    System.out.println(results);
+    return !results.isEmpty();
+}
     public void save(ConfirmationCode confirmationCode) {
         String sql = "INSERT INTO confirm_codes (id_code, code, exp_time) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, confirmationCode.getUserId(), confirmationCode.getCode(), confirmationCode.getExpirationTime());
     }
 
-    public void deleteByUserId(Long userId) {
-        String sql = "DELETE FROM confirm_codes WHERE id_code = ?";
-        jdbcTemplate.update(sql, userId);
+    public void deleteByUserId(Long userId, String code) {
+        String sql = "DELETE FROM confirm_codes WHERE code = ? and id_code = ?";
+        jdbcTemplate.update(sql, code, userId);
     }
+
 }
