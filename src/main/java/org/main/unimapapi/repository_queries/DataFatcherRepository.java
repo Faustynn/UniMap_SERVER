@@ -55,12 +55,12 @@ public class DataFatcherRepository {
     public List<Subject_dto> fetchAllSubjects() {
         String sql = "SELECT \n" +
                 "    sub.*,\n" +
-                "    MAX(CASE WHEN sub_eval.grade = 'A' THEN sub_eval.percentage ELSE NULL END) AS A,\n" +
-                "    MAX(CASE WHEN sub_eval.grade = 'B' THEN sub_eval.percentage ELSE NULL END) AS B,\n" +
-                "    MAX(CASE WHEN sub_eval.grade = 'C' THEN sub_eval.percentage ELSE NULL END) AS C,\n" +
-                "    MAX(CASE WHEN sub_eval.grade = 'D' THEN sub_eval.percentage ELSE NULL END) AS D,\n" +
-                "    MAX(CASE WHEN sub_eval.grade = 'E' THEN sub_eval.percentage ELSE NULL END) AS E,\n" +
-                "    MAX(CASE WHEN sub_eval.grade = 'FX' THEN sub_eval.percentage ELSE NULL END) AS FX\n" +
+                "    MAX(CASE WHEN sub_eval.grade = 'A' THEN sub_eval.percent ELSE NULL END) AS A,\n" +
+                "    MAX(CASE WHEN sub_eval.grade = 'B' THEN sub_eval.percent ELSE NULL END) AS B,\n" +
+                "    MAX(CASE WHEN sub_eval.grade = 'C' THEN sub_eval.percent ELSE NULL END) AS C,\n" +
+                "    MAX(CASE WHEN sub_eval.grade = 'D' THEN sub_eval.percent ELSE NULL END) AS D,\n" +
+                "    MAX(CASE WHEN sub_eval.grade = 'E' THEN sub_eval.percent ELSE NULL END) AS E,\n" +
+                "    MAX(CASE WHEN sub_eval.grade = 'FX' THEN sub_eval.percent ELSE NULL END) AS FX\n" +
                 "FROM \n" +
                 "    subjects sub\n" +
                 "LEFT JOIN \n" +
