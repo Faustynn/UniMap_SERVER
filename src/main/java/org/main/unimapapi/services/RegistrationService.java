@@ -22,6 +22,7 @@ public class RegistrationService {
                 .login(dto.getLogin())
                 .password(dto.getPassword())
                 .isAdmin(dto.isAdmin())
+                .isPremium(dto.isPremium())
                 .avatar("1")
                 .build();
         userRepository.save(user);
