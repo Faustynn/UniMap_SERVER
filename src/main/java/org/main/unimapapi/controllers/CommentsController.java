@@ -1,5 +1,6 @@
 package org.main.unimapapi.controllers;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.Comment_dto;
 import org.main.unimapapi.entities.User;
@@ -12,6 +13,7 @@ import org.main.unimapapi.services.TokenService;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,22 @@ import java.util.Map;
 public class CommentsController {
     private final JdbcTemplate jdbcTemplate;
     private final TokenService tokenService;
+
+    private boolean isNum(String id) {
+        // If the string is empty or uninitialized at all
+        if (id == null || id.trim().isEmpty()) {
+            return false;
+        }
+
+        // In case the value could be interpreted as number
+        // Then no injection right here will be performed
+        if (!id.matches("\\d+")) {
+            return false;
+        }
+
+        // If it is ok
+        return true;
+    }
 
     private final RowMapper<Comment_dto> subjectsRowMapper = new RowMapper<Comment_dto>() {
         @Override
@@ -53,13 +71,22 @@ public class CommentsController {
         }
     }
     @GetMapping("/subject/{subject_id}")
-    public ResponseEntity<List<Comment_dto>> getAllSubjectsComments(@PathVariable String subject_id) {
+    public ResponseEntity<List<Comment_dto>> getAllSubjectsComments(@PathVariable("subject_id") String subjectId) {
         try {
             String sql = "SELECT u_d.name, c_s.*\n" +
                     "FROM comments_subjects c_s\n" +
                     "    INNER JOIN user_data u_d ON c_s.user_id = u_d.id\n" +
                     "WHERE c_s.subject_code = ?";
-            List<Comment_dto> subjectsList = jdbcTemplate.query(sql, new Object[]{subject_id}, subjectsRowMapper);
+
+            // Then injection right here will be performed
+            if (!isNum(subjectId)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Collections.emptyList());
+            }
+
+            // Getting the list of subject-comments if they exist
+            List<Comment_dto> subjectsList = jdbcTemplate.query(sql, new Object[]{subjectId}, subjectsRowMapper);
+        try {
             return ResponseEntity.ok(subjectsList);
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,17 +95,27 @@ public class CommentsController {
     }
 
     @GetMapping("/teacher/{teacher_id}")
-    public ResponseEntity<List<Comment_dto>> getAllTeachersComments(@PathVariable String teacher_id) {
+    public ResponseEntity<List<Comment_dto>> getAllTeachersComments(@PathVariable("teacher_id") String teacherId) {
         try {
             String sql = "SELECT u_d.name, c_t.*\n" +
                     "FROM comments_teachers c_t\n" +
                     "    INNER JOIN user_data u_d ON c_t.user_id = u_d.id\n" +
                     "WHERE c_t.teacher_id = ?";
-            List<Comment_dto> teachersList = jdbcTemplate.query(sql, new Object[]{teacher_id}, subjectsRowMapper);
+          
+            // Then injection right here will be performed
+            if (!isNum(teacherId)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Collections.emptyList());
+            }
+
+            // Now, executing the query and trying to get the array of comments
+            List<Comment_dto> teachersList = jdbcTemplate.query(sql, new Object[]{teacherId}, subjectsRowMapper);
+
             return ResponseEntity.ok(teachersList);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.emptyList());
         }
     }
 

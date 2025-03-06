@@ -38,6 +38,13 @@ public class ConfirmationCodeRepository {
     return !results.isEmpty();
 }
     public void save(ConfirmationCode confirmationCode) {
+        // The only way injection may appear here is
+        // When the code is null, jdbc may not screen it properly
+        if (confirmationCode.getCode() == null) {
+            throw new IllegalArgumentException("CODE CAN NOT BE NULL");
+        }
+
+        // If it is ok - continuing
         String sql = "INSERT INTO confirm_codes (id_code, code, exp_time) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, confirmationCode.getUserId(), confirmationCode.getCode(), confirmationCode.getExpirationTime());
     }
