@@ -4,10 +4,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
-import org.main.unimapapi.entities.ConfirmationCode;
 import org.main.unimapapi.entities.User;
 import org.main.unimapapi.services.*;
-import org.main.unimapapi.utils.EmailSender;
 import org.main.unimapapi.utils.Hashing;
 import org.main.unimapapi.utils.JwtToken;
 import org.main.unimapapi.utils.ServerLogger;
@@ -17,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseCookie;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -28,8 +25,9 @@ public class UserController {
     private final UserService userService;
     private final RegistrationService registrationService;
     private final AuthService authService;
-    private final ConfirmationCodeService confirmationCodeService;
+  //  private final TokenService tokenService;
     private final JwtToken jwtToken;
+    ConfirmationCodeService ConfirmationCodeService;
 
     @PostMapping("register")
     public ResponseEntity<User> register(@RequestBody String jsonData) {
@@ -114,25 +112,8 @@ public class UserController {
                             "accessToken", accessToken
                     ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @GetMapping("user/email/{email}")
-    public ResponseEntity<Void> confirmEmailExists(@PathVariable String email) {
-        try {
-            Optional<User> user = userService.findByEmail(email);
-            if (user.isPresent()) {
-                String confirmationCode = confirmationCodeService.generateRandomCode();
-                LocalDateTime expirationTime = LocalDateTime.now().plusMinutes(1);
-                ConfirmationCode confirmationCodeEntity = new ConfirmationCode(user.get().getId(), confirmationCode, expirationTime);
-                confirmationCodeService.save(confirmationCodeEntity);
-                EmailSender.sendEmail(email, confirmationCode);
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Authentication failed | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -145,7 +126,6 @@ public class UserController {
             String data = jsonNode.get("data").asText();
             String[] parts = data.split(":");
 
-            System.out.println("TEST "+data);
             if (parts.length != 2) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
@@ -161,6 +141,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Change password failed | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -178,18 +160,14 @@ public class UserController {
             String email = parts[0];
             String userCode = parts[1];
 
-            System.out.println("TEST "+data);
-
             Optional<User> user = userService.findByEmail(email);
             Long id = user.map(User::getId).orElse(null);
 
-            System.out.println("TEST2 "+id +" "+userCode);
-
-            boolean isCodeValid = confirmationCodeService.validateConfirmationCode(id, userCode);
-            System.out.println("TEST3 "+isCodeValid);
+            boolean isCodeValid = ConfirmationCodeService.validateConfirmationCode(id, userCode);
             return ResponseEntity.ok(isCodeValid);
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Compare code failed | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

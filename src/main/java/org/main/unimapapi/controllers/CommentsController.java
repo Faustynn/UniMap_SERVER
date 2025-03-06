@@ -1,9 +1,9 @@
 package org.main.unimapapi.controllers;
 
-import org.springframework.web.bind.annotation.PathVariable;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.Comment_dto;
 import org.main.unimapapi.entities.User;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,9 +11,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.*;
 import org.main.unimapapi.services.TokenService;
 
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -24,22 +24,6 @@ import java.util.Map;
 public class CommentsController {
     private final JdbcTemplate jdbcTemplate;
     private final TokenService tokenService;
-
-    private boolean isNum(String id) {
-        // If the string is empty or uninitialized at all
-        if (id == null || id.trim().isEmpty()) {
-            return false;
-        }
-
-        // In case the value could be interpreted as number
-        // Then no injection right here will be performed
-        if (!id.matches("\\d+")) {
-            return false;
-        }
-
-        // If it is ok
-        return true;
-    }
 
     private final RowMapper<Comment_dto> subjectsRowMapper = new RowMapper<Comment_dto>() {
         @Override
@@ -67,55 +51,39 @@ public class CommentsController {
             rs.findColumn(columnName);
             return true;
         } catch (SQLException e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Column '" + columnName + "' not found in ResultSet. Error: " + e.getMessage());
             return false;
         }
     }
     @GetMapping("/subject/{subject_id}")
-    public ResponseEntity<List<Comment_dto>> getAllSubjectsComments(@PathVariable("subject_id") String subjectId) {
+    public ResponseEntity<List<Comment_dto>> getAllSubjectsComments(@PathVariable String subject_id) {
         try {
             String sql = "SELECT u_d.name, c_s.*\n" +
                     "FROM comments_subjects c_s\n" +
                     "    INNER JOIN user_data u_d ON c_s.user_id = u_d.id\n" +
                     "WHERE c_s.subject_code = ?";
-
-            // Then injection right here will be performed
-            if (!isNum(subjectId)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Collections.emptyList());
-            }
-
-            // Getting the list of subject-comments if they exist
-            List<Comment_dto> subjectsList = jdbcTemplate.query(sql, new Object[]{subjectId}, subjectsRowMapper);
-        try {
+            List<Comment_dto> subjectsList = jdbcTemplate.query(sql, new Object[]{subject_id}, subjectsRowMapper);
             return ResponseEntity.ok(subjectsList);
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to fetch comments for subject: " + subject_id + " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @GetMapping("/teacher/{teacher_id}")
-    public ResponseEntity<List<Comment_dto>> getAllTeachersComments(@PathVariable("teacher_id") String teacherId) {
+    public ResponseEntity<List<Comment_dto>> getAllTeachersComments(@PathVariable String teacher_id) {
         try {
             String sql = "SELECT u_d.name, c_t.*\n" +
                     "FROM comments_teachers c_t\n" +
                     "    INNER JOIN user_data u_d ON c_t.user_id = u_d.id\n" +
                     "WHERE c_t.teacher_id = ?";
-          
-            // Then injection right here will be performed
-            if (!isNum(teacherId)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(Collections.emptyList());
-            }
-
-            // Now, executing the query and trying to get the array of comments
-            List<Comment_dto> teachersList = jdbcTemplate.query(sql, new Object[]{teacherId}, subjectsRowMapper);
-
+            List<Comment_dto> teachersList = jdbcTemplate.query(sql, new Object[]{teacher_id}, subjectsRowMapper);
             return ResponseEntity.ok(teachersList);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to fetch comments for subject: " + teacher_id + " | Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -144,7 +112,10 @@ public class CommentsController {
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to add comment for subject | UserID: " + payload.get("user_id") +
+                            ", SubjectCode: " + payload.get("code") +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -172,7 +143,10 @@ public class CommentsController {
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to add comment for teacher | UserID: " + payload.get("user_id") +
+                            ", SubjectCode: " + payload.get("code") +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -187,7 +161,9 @@ public class CommentsController {
             jdbcTemplate.update(sql, comment_id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to delete comment for subject | CommentId: " + comment_id +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -198,7 +174,9 @@ public class CommentsController {
             jdbcTemplate.update(sql, comment_id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to delete comment for teacher | CommentId: " + comment_id +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

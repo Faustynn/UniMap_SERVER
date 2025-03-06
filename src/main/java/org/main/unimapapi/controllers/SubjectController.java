@@ -39,7 +39,6 @@ public class SubjectController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error fetching subjects: " + e.getMessage());
-            e.printStackTrace(); // Print the stack trace for debugging
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
