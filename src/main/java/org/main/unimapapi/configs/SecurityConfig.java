@@ -42,7 +42,7 @@ public class SecurityConfig {
                                         "/api/unimap_pc/resources/**",
 
                                         "/api/unimap_pc/news/all",
-                                        "/api/unimap_pc/log"
+                                        "/api/unimap_pc/log",
 
                                         "/api/unimap_pc/comments/teacher/**",
                                         "/api/unimap_pc/comments/subject/**",

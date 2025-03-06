@@ -112,6 +112,8 @@ public class UserController {
                             "accessToken", accessToken
                     ));
         } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Authentication failed | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -139,6 +141,8 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Change password failed | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -162,6 +166,8 @@ public class UserController {
             boolean isCodeValid = ConfirmationCodeService.validateConfirmationCode(id, userCode);
             return ResponseEntity.ok(isCodeValid);
         } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Compare code failed | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

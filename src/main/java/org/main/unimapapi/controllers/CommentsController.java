@@ -3,12 +3,14 @@ package org.main.unimapapi.controllers;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.Comment_dto;
 import org.main.unimapapi.entities.User;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.*;
 import org.main.unimapapi.services.TokenService;
+
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -49,6 +51,7 @@ public class CommentsController {
             rs.findColumn(columnName);
             return true;
         } catch (SQLException e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Column '" + columnName + "' not found in ResultSet. Error: " + e.getMessage());
             return false;
         }
     }
@@ -62,7 +65,8 @@ public class CommentsController {
             List<Comment_dto> subjectsList = jdbcTemplate.query(sql, new Object[]{subject_id}, subjectsRowMapper);
             return ResponseEntity.ok(subjectsList);
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to fetch comments for subject: " + subject_id + " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -77,7 +81,8 @@ public class CommentsController {
             List<Comment_dto> teachersList = jdbcTemplate.query(sql, new Object[]{teacher_id}, subjectsRowMapper);
             return ResponseEntity.ok(teachersList);
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to fetch comments for subject: " + teacher_id + " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -107,7 +112,10 @@ public class CommentsController {
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to add comment for subject | UserID: " + payload.get("user_id") +
+                            ", SubjectCode: " + payload.get("code") +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -135,7 +143,10 @@ public class CommentsController {
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to add comment for teacher | UserID: " + payload.get("user_id") +
+                            ", SubjectCode: " + payload.get("code") +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -150,7 +161,9 @@ public class CommentsController {
             jdbcTemplate.update(sql, comment_id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to delete comment for subject | CommentId: " + comment_id +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -161,7 +174,9 @@ public class CommentsController {
             jdbcTemplate.update(sql, comment_id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR,
+                    "Failed to delete comment for teacher | CommentId: " + comment_id +
+                            " | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
