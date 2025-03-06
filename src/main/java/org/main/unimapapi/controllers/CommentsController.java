@@ -2,15 +2,18 @@ package org.main.unimapapi.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.Comment_dto;
+import org.main.unimapapi.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.web.bind.annotation.*;
+import org.main.unimapapi.services.TokenService;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -18,6 +21,7 @@ import java.util.List;
 @RequestMapping("/api/unimap_pc/comments")
 public class CommentsController {
     private final JdbcTemplate jdbcTemplate;
+    private final TokenService tokenService;
 
     private final RowMapper<Comment_dto> subjectsRowMapper = new RowMapper<Comment_dto>() {
         @Override
@@ -81,10 +85,26 @@ public class CommentsController {
 
 
     @PostMapping("/subject")
-    public ResponseEntity<Void> addNewSubjectComment(@RequestBody Comment_dto comment) {
+    public ResponseEntity<Void> addNewSubjectComment(@RequestBody Map<String, Object> payload, @RequestHeader("Authorization") String accessToken) {
         try {
+            // Validate access token
+            String token = accessToken.replace("Bearer ", "");
+            String username = tokenService.getLoginFromAccessToken(token);
+            if (!tokenService.validateAccessToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            // Extract data from JSON payload
+            int userId = Integer.parseInt((String) payload.get("user_id"));
+            String subjectCode = (String) payload.get("code");
+            String description = (String) payload.get("text");
+            int rating = (int) payload.get("rating");
+            int levelAccess = Integer.parseInt((String) payload.get("levelAccess"));
+
+            System.out.println("New comment with datas" + userId+subjectCode+description+rating+levelAccess);
+            // Insert data into the database
             String sql = "INSERT INTO comments_subjects (user_id, subject_code, description, rating, levelaccess) VALUES (?, ?, ?, ?, ?)";
-            jdbcTemplate.update(sql, comment.getUser_id(), comment.getLooking_id(), comment.getDescription(), comment.getRating(), comment.getLevelAccess());
+            jdbcTemplate.update(sql, userId, subjectCode, description, rating, levelAccess);
+
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             e.printStackTrace();
@@ -93,10 +113,26 @@ public class CommentsController {
     }
 
     @PostMapping("/teacher")
-    public ResponseEntity<Void> addNewTeacherComment(@RequestBody Comment_dto comment) {
+    public ResponseEntity<Void> addNewTeacherComment(@RequestBody Map<String, Object> payload, @RequestHeader("Authorization") String accessToken)  {
         try {
+            // Validate access token
+            String token = accessToken.replace("Bearer ", "");
+            String username = tokenService.getLoginFromAccessToken(token);
+            if (!tokenService.validateAccessToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            // Extract data from JSON payload
+            int userId = Integer.parseInt((String) payload.get("user_id"));
+            String teacher_id = (String) payload.get("code");
+            String description = (String) payload.get("text");
+            int rating = (int) payload.get("rating");
+            int levelAccess = Integer.parseInt((String) payload.get("levelAccess"));
+
+            System.out.println("New comment with datas" + userId+teacher_id+description+rating+levelAccess);
+
             String sql = "INSERT INTO comments_teachers (user_id, teacher_id, description, rating, levelaccess) VALUES (?, ?, ?, ?, ?)";
-            jdbcTemplate.update(sql, comment.getUser_id(), comment.getLooking_id(), comment.getDescription(), comment.getRating(), comment.getLevelAccess());
+            jdbcTemplate.update(sql, userId, teacher_id, description, rating, levelAccess);
+
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             e.printStackTrace();
