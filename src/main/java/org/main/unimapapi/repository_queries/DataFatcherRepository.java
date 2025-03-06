@@ -114,6 +114,11 @@ public class DataFatcherRepository {
 
     private List<TeacherSubjectRoles> fetchSubjectsByTeacherId(String teacherId) {
         String sql = "SELECT * FROM teacher_subject_roles WHERE teacher_id = ?";
+
+        if (teacherId != null || !teacherId.matches("\\d+")) {
+            throw new IllegalArgumentException("teacherId cannot be null or empty");
+        }
+
         return jdbcTemplate.query(sql, new RowMapper<TeacherSubjectRoles>() {
             @Override
             public TeacherSubjectRoles mapRow(ResultSet rs, int rowNum) throws SQLException {
