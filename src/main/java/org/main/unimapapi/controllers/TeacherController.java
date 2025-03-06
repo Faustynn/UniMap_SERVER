@@ -4,6 +4,7 @@ package org.main.unimapapi.controllers;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.repository_queries.DataFatcherRepository;
 import org.main.unimapapi.utils.JwtToken;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class TeacherController {
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error fetching teachers: " + e.getMessage());
             e.printStackTrace(); // Print the stack trace for debugging
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

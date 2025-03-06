@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.main.unimapapi.entities.User;
 import org.main.unimapapi.repository_queries.UserRepository;
 import org.main.unimapapi.utils.Hashing;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,7 +21,7 @@ public class AuthService {
             if (Hashing.checkPassword(password, user.get().getPassword())) {
                 return user.get();
             }
-            System.out.println("Password mismatch!"+ Hashing.hashPassword(password));
+            ServerLogger.logServer(ServerLogger.Level.WARNING, "Password mismatch!"+ Hashing.hashPassword(password));
 
             return null;
         } else if (user2.isPresent()) {
@@ -28,7 +29,7 @@ public class AuthService {
                 return user2.get();
             }
         }
-        System.out.println("User not found!");
+        ServerLogger.logServer(ServerLogger.Level.WARNING, "User not found!");
         return null;
     }
 }

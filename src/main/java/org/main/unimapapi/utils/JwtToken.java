@@ -48,6 +48,8 @@ public class JwtToken {
         try {
             return extractClaims(token, getAccessSigningKey()).getSubject();
         } catch (JwtException e) {
+            ServerLogger.logServer(ServerLogger.Level.WARNING, "Invalid access token: "
+                    + e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid access token");
         }
     }
@@ -55,6 +57,8 @@ public class JwtToken {
         try {
             return extractClaims(token, getRefreshSigningKey()).getSubject();
         } catch (JwtException e) {
+            ServerLogger.logServer(ServerLogger.Level.WARNING, "Invalid refresh token: "
+                    + e.getMessage());
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
     }
@@ -73,6 +77,8 @@ public class JwtToken {
             return claims.getSubject().equals(username) &&
                     !claims.getExpiration().before(new Date());
         } catch (JwtException e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error validating access token for user: "
+                    + username + ". Error: " + e.getMessage());
             return false;
         }
     }
@@ -85,6 +91,8 @@ public class JwtToken {
             return claims.getSubject().equals(username) &&
                     !claims.getExpiration().before(new Date());
         } catch (JwtException e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error validating access token for user: "
+                    + username + ". Error: " + e.getMessage());
             return false;
         }
     }
@@ -95,6 +103,8 @@ public class JwtToken {
             return claims.getSubject().equals(username) &&
                     !claims.getExpiration().before(new Date());
         } catch (JwtException e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error validating refresh token for user: "
+                    + username + ". Error: " + e.getMessage());
             return false;
         }
     }
