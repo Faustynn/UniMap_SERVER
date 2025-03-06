@@ -3,7 +3,6 @@ package org.main.unimapapi.controllers;
 import org.springframework.web.bind.annotation.PathVariable;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.Comment_dto;
-import org.main.unimapapi.entities.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
