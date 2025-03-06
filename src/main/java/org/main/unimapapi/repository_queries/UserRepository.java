@@ -62,7 +62,7 @@ public class UserRepository {
     }
 
     public void save(User user) {
-        String sql = "INSERT INTO user_data (login, email, password, name, is_admin, is_premium,avatar_path) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user_data (login, email, password, name, is_admin,is_premium,avatar_path) VALUES (?, ?, ?, ?,?, ?, ?)";
         jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(),user.isPremium(), user.getAvatar());
     }
 

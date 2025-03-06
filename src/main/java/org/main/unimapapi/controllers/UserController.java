@@ -24,40 +24,46 @@ public class UserController {
     private final UserService userService;
     private final RegistrationService registrationService;
     private final AuthService authService;
-    private final TokenService tokenService;
+  //  private final TokenService tokenService;
     private final JwtToken jwtToken;
     ConfirmationCodeService ConfirmationCodeService;
 
     @PostMapping("register")
     public ResponseEntity<User> register(@RequestBody String jsonData) {
         try {
+            System.out.println("TEST "+jsonData);
+
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
 
             String data = jsonNode.get("data").asText();
             String[] parts = data.split(":");
             if (parts.length != 4) {
+                System.out.println("TEST2");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
             String username = parts[0];
-            String password = parts[1];
+            String password = parts[2];
             String passwordHash = Hashing.hashPassword(password);
-            String login = parts[3];
-            String email = parts[2];
+            String login = parts[1];
+            String email = parts[3];
 
+            System.out.println("TEST3");
             if (userService.findByLogin(login).isPresent() ||
-                    userService.findByEmail(email).isPresent() ||
-                    userService.findByUsername(username).isPresent()) {
-                return ResponseEntity.status(HttpStatus.SEE_OTHER).build();
+                    userService.findByEmail(email).isPresent()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
-
             User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, false,null));
+
+            System.out.println("TEST4 "+user.getLogin()+" "+user.getEmail()+" "+user.getPassword()+" "+user.getUsername());
+
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
             return ResponseEntity.ok(user);
         } catch (Exception e) {
+            e.printStackTrace(); // Log the exception details
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
