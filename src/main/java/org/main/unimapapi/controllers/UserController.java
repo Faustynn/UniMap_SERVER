@@ -48,11 +48,12 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
+         //   TEST {"data":"QWERTY:1234567890q:qwerty@stuba.sk:qwerty"}
             String username = parts[0];
-            String password = parts[2];
+            String email = parts[2];
+            String password = parts[1];
             String passwordHash = Hashing.hashPassword(password);
-            String login = parts[1];
-            String email = parts[3];
+            String login = parts[3];
 
             ServerLogger.logServer(ServerLogger.Level.INFO, "Registration attempt: username=" + username + ", email=" + email + ", login=" + login);
 
@@ -62,7 +63,7 @@ public class UserController {
                  //ServerLogger.logServer(ServerLogger.Level.WARNING, "Registration failed: User already exists (login=" + login + ", email=" + email + ")");
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build();
             }
-            User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, false,null));
+            User user = registrationService.register(new User_dto(login,email,passwordHash,username, false, false,null));
 
             System.out.println("TEST4 "+user.getLogin()+" "+user.getEmail()+" "+user.getPassword()+" "+user.getUsername());
 

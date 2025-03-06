@@ -1306,3 +1306,5 @@ build/
 /UniMapDB/postgresql.conf
 /UniMapDB/postgresql.log
 /UniMapDB/postmaster.opts
+/src/main/resources/org.main.unimapapi/logs/client_logs.xml
+/src/main/resources/org.main.unimapapi/logs/server_logs.xml
