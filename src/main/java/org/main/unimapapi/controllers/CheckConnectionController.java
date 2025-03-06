@@ -1,6 +1,7 @@
 package org.main.unimapapi.controllers;
 
 import org.main.unimapapi.dtos.ServerConnection_dto;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +17,8 @@ public class CheckConnectionController {
                 "UP",
                 LocalDateTime.now().toString()
         );
-        System.out.println("Response sent: " + status);
+        ServerLogger.logServer(ServerLogger.Level.INFO, "Response sent: " + status);
+        //System.out.println("Response sent: " + status);
         return ResponseEntity.ok(status);
     }
 }
