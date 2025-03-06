@@ -2,6 +2,7 @@ package org.main.unimapapi.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.News_dto;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,7 +41,7 @@ public class NewsController {
             List<News_dto> newsList = jdbcTemplate.query(sql, newsRowMapper);
             return ResponseEntity.ok(newsList);
         } catch (Exception e) {
-            e.printStackTrace(); // Log the exception for debugging
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error fetching news: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

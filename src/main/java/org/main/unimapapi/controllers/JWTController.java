@@ -2,6 +2,7 @@ package org.main.unimapapi.controllers;
 
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.services.TokenService;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +23,7 @@ public class JWTController {
 
         String refreshToken = request.get("refreshToken");
         if (refreshToken == null || !tokenService.validateRefreshToken(refreshToken)) {
+            ServerLogger.logServer(ServerLogger.Level.WARNING, "Not valid refresh token received.");
             System.out.println("Not valid refresh token");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

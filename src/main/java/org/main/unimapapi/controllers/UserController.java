@@ -8,6 +8,7 @@ import org.main.unimapapi.entities.User;
 import org.main.unimapapi.services.*;
 import org.main.unimapapi.utils.Hashing;
 import org.main.unimapapi.utils.JwtToken;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,8 @@ public class UserController {
             String data = jsonNode.get("data").asText();
             String[] parts = data.split(":");
             if (parts.length != 4) {
+                //ServerLogger.logServer(ServerLogger.Level.WARNING, "Invalid registration data format.");
+
                 System.out.println("TEST2");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
@@ -49,21 +52,26 @@ public class UserController {
             String login = parts[1];
             String email = parts[3];
 
+            ServerLogger.logServer(ServerLogger.Level.INFO, "Registration attempt: username=" + username + ", email=" + email + ", login=" + login);
+
             System.out.println("TEST3");
             if (userService.findByLogin(login).isPresent() ||
                     userService.findByEmail(email).isPresent()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+                 //ServerLogger.logServer(ServerLogger.Level.WARNING, "Registration failed: User already exists (login=" + login + ", email=" + email + ")");
+                return ResponseEntity.status(HttpStatus.SEE_OTHER).build();
             }
             User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, false,null));
 
             System.out.println("TEST4 "+user.getLogin()+" "+user.getEmail()+" "+user.getPassword()+" "+user.getUsername());
 
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                ServerLogger.logServer(ServerLogger.Level.ERROR, "Registration failed: User object is null.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
+            //ServerLogger.logServer(ServerLogger.Level.INFO, "User registered successfully: login=" + login);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
-            e.printStackTrace(); // Log the exception details
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Registration error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
