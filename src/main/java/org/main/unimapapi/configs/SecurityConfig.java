@@ -33,6 +33,8 @@ public class SecurityConfig {
                                         "/",
                                         "/oauth2/**",
                                         "/login**",
+                                        "/api/unimap_pc/user/email/change_pass/**",
+                                        "/api/unimap_pc/change_avatar/**",
                                         "/api/unimap_pc/check-connection",
                                         "/api/unimap_pc/authenticate/**",
                                         "/api/unimap_pc/register",
