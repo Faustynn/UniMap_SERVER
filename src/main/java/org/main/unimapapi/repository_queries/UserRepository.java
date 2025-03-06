@@ -39,18 +39,30 @@ public class UserRepository {
     }
 
     public Optional<User> findByEmail(String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("EMAIL CAN NOT BE NULL");
+        }
+
         String sql = "SELECT * FROM user_data WHERE email = ?";
         List<User> users = jdbcTemplate.query(sql, userRowMapper, email);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     public Optional<User> findByLogin(String login) {
+        if (login == null) {
+            throw new IllegalArgumentException("LOGIN CAN NOT BE NULL");
+        }
+
         String sql = "SELECT * FROM user_data WHERE login = ?";
         List<User> users = jdbcTemplate.query(sql, userRowMapper, login);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
     public Optional<User> findByUsername(String username) {
+        if (username == null) {
+            throw new IllegalArgumentException("EMAIL CAN NOT BE NULL");
+        }
+
         String sql = "SELECT * FROM user_data WHERE name = ?";
         List<User> users = jdbcTemplate.query(sql, userRowMapper, username);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
