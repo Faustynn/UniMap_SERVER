@@ -1,7 +1,6 @@
 package org.main.unimapapi.repository_queries;
 
 import org.main.unimapapi.dtos.Subject_dto;
-import org.main.unimapapi.dtos.News_dto;
 import org.main.unimapapi.dtos.TeacherSubjectRoles;
 import org.main.unimapapi.dtos.Teacher_dto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,9 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class DataFatcherRepository {
@@ -34,7 +35,7 @@ public class DataFatcherRepository {
             subject.setSemester(rs.getString("semester"));
             subject.setLanguages(Arrays.asList(rs.getString("languages").split(",")));
             subject.setCompletionType(rs.getString("completion_type"));
-            subject.setStudentCount(rs.getLong("student_count"));
+            subject.setStudentCount(rs.getInt("student_count"));
             subject.setAssesmentMethods(rs.getString("assesment_methods"));
             subject.setLearningOutcomes(rs.getString("learning_outcomes"));
             subject.setCourseContents(rs.getString("course_contents"));
@@ -50,23 +51,6 @@ public class DataFatcherRepository {
             return subject;
         }
     };
-
-    private final RowMapper<News_dto> NewsRowMapper = new RowMapper<News_dto>() {
-        @Override
-        public News_dto mapRow(ResultSet rs, int rowNum) throws SQLException {
-            News_dto article = new News_dto();
-            article.setId(rs.getInt("id"));
-            article.setTitle(rs.getString("title"));
-            article.setContent(rs.getString("content"));
-            article.setDate_of_creation(rs.getString("date_of_creation"));
-            return article;
-        }
-    };
-
-    public List<News_dto> fetchAllNews(){
-        String sql = "select * from news";
-        return jdbcTemplate.query(sql, NewsRowMapper);
-    }
 
     public List<Subject_dto> fetchAllSubjects() {
         String sql = "SELECT \n" +
@@ -109,7 +93,20 @@ public class DataFatcherRepository {
             teacher.setEmail(rs.getString("email"));
             teacher.setPhone(rs.getString("phone"));
             teacher.setOffice(rs.getString("office"));
-            teacher.setSubjects(fetchSubjectsByTeacherId(rs.getString("id")));
+
+            String subjectCode = rs.getString("subject_code");
+            String roles = rs.getString("roles");
+
+            if (subjectCode != null && roles != null) {
+                TeacherSubjectRoles tsr = new TeacherSubjectRoles();
+                tsr.setSubjectName(subjectCode);
+                tsr.setRoles(Arrays.asList(roles.split(",")));
+                teacher.setSubjects(Collections.singletonList(tsr));
+            } else {
+                teacher.setSubjects(Collections.emptyList());
+            }
+
+
             return teacher;
         }
     };
@@ -132,18 +129,16 @@ public class DataFatcherRepository {
 
 
     public List<Teacher_dto> fetchAllTeachers() {
-        String sql = "SELECT tea.*,\n" +
-                "\t\ttea_sub.subject_code,\n" +
-                "\t\ttea_sub.roles\n" +
-                "FROM \n" +
-                "\tteachers tea\n" +
-                "LEFT JOIN\n" +
-                "\tteacher_subject_roles tea_sub ON tea.id = tea_sub.teacher_id\n" +
-                "GROUP BY\n" +
-                "\ttea.id,\n" +
-                "\ttea_sub.subject_code,\n" +
-                "\ttea_sub.roles";
+        String sql = "SELECT tea.id, tea.name, tea.email, tea.phone, tea.office,\n" +
+                "       tea_sub.subject_code, tea_sub.roles\n" +
+                "FROM teachers tea\n" +
+                "LEFT JOIN teacher_subject_roles tea_sub ON tea.id = tea_sub.teacher_id\n" +
+                "ORDER BY tea.id;";
         return jdbcTemplate.query(sql, TeachersRowMapper);
     }
+
+
+
+
 
 }

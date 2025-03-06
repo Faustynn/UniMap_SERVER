@@ -25,13 +25,15 @@ public class UserController {
     private final UserService userService;
     private final RegistrationService registrationService;
     private final AuthService authService;
-    private final TokenService tokenService;
+  //  private final TokenService tokenService;
     private final JwtToken jwtToken;
     ConfirmationCodeService ConfirmationCodeService;
 
     @PostMapping("register")
     public ResponseEntity<User> register(@RequestBody String jsonData) {
         try {
+            System.out.println("TEST "+jsonData);
+
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
 
@@ -39,25 +41,29 @@ public class UserController {
             String[] parts = data.split(":");
             if (parts.length != 4) {
                 //ServerLogger.logServer(ServerLogger.Level.WARNING, "Invalid registration data format.");
+
+                System.out.println("TEST2");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
 
             String username = parts[0];
-            String password = parts[1];
+            String password = parts[2];
             String passwordHash = Hashing.hashPassword(password);
-            String login = parts[3];
-            String email = parts[2];
+            String login = parts[1];
+            String email = parts[3];
 
             ServerLogger.logServer(ServerLogger.Level.INFO, "Registration attempt: username=" + username + ", email=" + email + ", login=" + login);
 
+            System.out.println("TEST3");
             if (userService.findByLogin(login).isPresent() ||
-                    userService.findByEmail(email).isPresent() ||
-                    userService.findByUsername(username).isPresent()) {
-                //ServerLogger.logServer(ServerLogger.Level.WARNING, "Registration failed: User already exists (login=" + login + ", email=" + email + ")");
+                    userService.findByEmail(email).isPresent()) {
+                 //ServerLogger.logServer(ServerLogger.Level.WARNING, "Registration failed: User already exists (login=" + login + ", email=" + email + ")");
                 return ResponseEntity.status(HttpStatus.SEE_OTHER).build();
             }
+            User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, false,null));
 
-            User user = registrationService.register(new User_dto(login, email, passwordHash, username, false, null));
+            System.out.println("TEST4 "+user.getLogin()+" "+user.getEmail()+" "+user.getPassword()+" "+user.getUsername());
+
             if (user == null) {
                 ServerLogger.logServer(ServerLogger.Level.ERROR, "Registration failed: User object is null.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

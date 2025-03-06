@@ -30,6 +30,7 @@ public class User_dto {
     private String username;
 
     private boolean isAdmin;
+    private boolean isPremium;
     private String avatar;
 
 }

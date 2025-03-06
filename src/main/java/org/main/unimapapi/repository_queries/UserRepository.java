@@ -26,6 +26,7 @@ public class UserRepository {
             user.setPassword(rs.getString("password"));
             user.setUsername(rs.getString("name"));
             user.setAdmin(rs.getBoolean("is_admin"));
+            user.setPremium(rs.getBoolean("is_premium"));
             user.setAvatar(rs.getString("avatar_path"));
             return user;
         }
@@ -61,13 +62,13 @@ public class UserRepository {
     }
 
     public void save(User user) {
-        String sql = "INSERT INTO user_data (login, email, password, name, is_admin, avatar_path) VALUES (?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(), user.getAvatar());
+        String sql = "INSERT INTO user_data (login, email, password, name, is_admin,is_premium,avatar_path) VALUES (?, ?, ?, ?,?, ?, ?)";
+        jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(),user.isPremium(), user.getAvatar());
     }
 
     public void update(User user) {
-        String sql = "UPDATE user_data SET login = ?, email = ?, password = ?, name = ?, is_admin = ?, avatar_path = ? WHERE id = ?";
-        jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(),user.getAvatar(), user.getId());
+        String sql = "UPDATE user_data SET login = ?, email = ?, password = ?, name = ?, is_admin = ?, is_premium= ?,avatar_path = ? WHERE id = ?";
+        jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(),user.isPremium(),user.getAvatar(), user.getId());
     }
 
     public void deleteById(Long id) {
