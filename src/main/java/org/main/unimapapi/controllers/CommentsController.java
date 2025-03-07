@@ -136,7 +136,7 @@ public class CommentsController {
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error adding teacher comment: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
