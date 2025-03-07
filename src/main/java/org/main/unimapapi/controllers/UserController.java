@@ -11,6 +11,7 @@ import org.main.unimapapi.utils.EmailSender;
 import org.main.unimapapi.utils.Hashing;
 import org.main.unimapapi.utils.JwtToken;
 import org.main.unimapapi.utils.ServerLogger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -144,6 +145,7 @@ public class UserController {
 
 
 
+
     @PostMapping("user/email/password")
     public ResponseEntity<Void> changePassword(@RequestBody String jsonData) {
         try {
@@ -169,31 +171,6 @@ public class UserController {
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR,
                     "Change password failed | Error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    @PostMapping("user/email/code")
-    public ResponseEntity<Boolean> compareCodes(@RequestBody String jsonData) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode jsonNode = objectMapper.readTree(jsonData);
-            String data = jsonNode.get("data").asText();
-            String[] parts = data.split(":");
-            if (parts.length != 2) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-            String email = parts[0];
-            String userCode = parts[1];
-
-            Optional<User> user = userService.findByEmail(email);
-            Long id = user.map(User::getId).orElse(null);
-
-            boolean isCodeValid = confirmationCodeService.validateConfirmationCode(id, userCode);
-            return ResponseEntity.ok(isCodeValid);
-        } catch (Exception e) {
-            ServerLogger.logServer(ServerLogger.Level.ERROR,
-                    "Compare code failed | Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
