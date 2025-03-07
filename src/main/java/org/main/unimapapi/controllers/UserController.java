@@ -145,8 +145,6 @@ public class UserController {
     }
 
 
-
-
     @PostMapping("user/email/password")
     public ResponseEntity<Void> changePassword(@RequestBody String jsonData) {
         try {
