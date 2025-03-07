@@ -51,4 +51,12 @@ public class UserService {
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+    public void delete_all_user_info(Long id) {
+        userRepository.deleteAllUserInfo(id);
+    }
+    public void delete_all_user_comments(Long id) {
+        userRepository.deleteAllUserComments(id);
+    }
+
 }

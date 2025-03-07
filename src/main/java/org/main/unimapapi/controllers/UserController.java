@@ -29,6 +29,7 @@ public class UserController {
     private final RegistrationService registrationService;
     private final AuthService authService;
     private final JwtToken jwtToken;
+    private final TokenService tokenService;
     private final ConfirmationCodeService confirmationCodeService;
 
     @PostMapping("register")
@@ -197,4 +198,42 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @DeleteMapping("user/delete/all/{userId}")
+    private ResponseEntity<Boolean> deleteUserData(@PathVariable String userId,@RequestHeader("Authorization") String accessToken) {
+        System.out.println("I have delete userdata request in id: "+userId);
+        try {
+            String token = accessToken.replace("Bearer ", "");
+            String username = tokenService.getLoginFromAccessToken(token);
+            if (!tokenService.validateAccessToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            System.out.println("I have delete userdata request in id: "+userId);
+            userService.delete_all_user_info(Long.parseLong(userId));
+            return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+        }
+    }
+
+    @DeleteMapping("user/delete/comments/{userId}")
+    private ResponseEntity<Boolean> deleteUserComments(@PathVariable String userId, @RequestHeader("Authorization") String accessToken) {
+        System.out.println("I have delete user comments request in id: "+userId);
+        try {
+            String token = accessToken.replace("Bearer ", "");
+            String username = tokenService.getLoginFromAccessToken(token);
+            if (!tokenService.validateAccessToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            userService.delete_all_user_comments(Long.parseLong(userId));
+            return ResponseEntity.ok(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+        }
+    }
+
 }

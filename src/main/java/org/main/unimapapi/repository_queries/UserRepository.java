@@ -87,4 +87,33 @@ public class UserRepository {
         String sql = "DELETE FROM user_data WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
+
+    public void deleteAllUserInfo(Long id) {
+//        String deleteCommentsSubjectsSql = "DELETE FROM comments_subjects WHERE user_id = ?";
+//        String deleteCommentsTeachersSql = "DELETE FROM comments_teachers WHERE user_id = ?";
+        String deleteUserSql = "DELETE FROM user_data WHERE id = ?";
+        String deleteConfCodesSql = "DELETE FROM confirm_codes WHERE id_code = ?";
+
+//        jdbcTemplate.update(deleteCommentsSubjectsSql, id);
+//        jdbcTemplate.update(deleteCommentsTeachersSql, id);
+        jdbcTemplate.update(deleteConfCodesSql, id);
+        jdbcTemplate.update(deleteUserSql, id);
+
+    }
+
+    public void deleteAllUserComments(Long id) {
+        String deleteCommentsSubjectsSql = "DELETE FROM comments_subjects WHERE user_id = ?";
+        String deleteCommentsTeachersSql = "DELETE FROM comments_teachers WHERE user_id = ?";
+
+        jdbcTemplate.update(deleteCommentsSubjectsSql, id);
+        jdbcTemplate.update(deleteCommentsTeachersSql, id);
+    }
+
+
+
+
+
+
+
+
 }
