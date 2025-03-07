@@ -2,6 +2,7 @@ package org.main.unimapapi.services;
 
 import org.main.unimapapi.entities.ConfirmationCode;
 import org.main.unimapapi.repository_queries.ConfirmationCodeRepository;
+import org.main.unimapapi.utils.ServerLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,8 @@ public class ConfirmationCodeService {
             }
             return false;
         } catch (NumberFormatException e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error validating confirmation code for userId: "
+                    + userId + ", Error: " + e.getMessage());
             return false;
         }
     }

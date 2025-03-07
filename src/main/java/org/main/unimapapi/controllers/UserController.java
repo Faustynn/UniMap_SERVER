@@ -140,6 +140,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
         } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error confirming email " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -215,7 +216,7 @@ public class UserController {
             userService.delete_all_user_info(Long.parseLong(userId));
             return ResponseEntity.ok(true);
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error deleting user data - UserID: " + userId + ", Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
@@ -233,7 +234,7 @@ public class UserController {
             userService.delete_all_user_comments(Long.parseLong(userId));
             return ResponseEntity.ok(true);
         } catch (Exception e) {
-            e.printStackTrace();
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error deleting user comments - UserID: " + userId + ", Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
         }
     }
