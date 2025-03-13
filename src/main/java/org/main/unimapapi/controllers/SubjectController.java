@@ -34,7 +34,7 @@ public class SubjectController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("subjects", dataFatcherRepository.fetchAllSubjects());
-           // System.out.println("ODOSLAL SOM "+response);
+            System.out.println("ODOSLAL SOM "+response);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

@@ -60,7 +60,7 @@ public class DataFatcherRepository {
                 "    MAX(CASE WHEN sub_eval.grade = 'C' THEN sub_eval.percent ELSE NULL END) AS C,\n" +
                 "    MAX(CASE WHEN sub_eval.grade = 'D' THEN sub_eval.percent ELSE NULL END) AS D,\n" +
                 "    MAX(CASE WHEN sub_eval.grade = 'E' THEN sub_eval.percent ELSE NULL END) AS E,\n" +
-                "    MAX(CASE WHEN sub_eval.grade = 'FX' THEN sub_eval.percent ELSE NULL END) AS FX\n" +
+                "    MAX(CASE WHEN sub_eval.grade = 'Fx' THEN sub_eval.percent ELSE NULL END) AS FX\n" +
                 "FROM \n" +
                 "    subjects sub\n" +
                 "LEFT JOIN \n" +
