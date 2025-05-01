@@ -41,6 +41,12 @@ public class SecurityConfig {
                         authorizeRequests
                                 // List all endpoints accessible without authorisation
                                 .requestMatchers(
+                                        //SSE
+                                        "/api/unimap_pc/sse",
+                                        "/api/unimap_pc/sse/subscribe",
+                                        "/api/unimap_pc/sse/status",
+
+
                                         // Swagger
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
