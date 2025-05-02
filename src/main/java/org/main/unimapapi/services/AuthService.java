@@ -21,7 +21,7 @@ public class AuthService {
             if (Hashing.checkPassword(password, user.get().getPassword())) {
                 return user.get();
             }
-            ServerLogger.logServer(ServerLogger.Level.WARNING, "Password mismatch!"+ Hashing.hashPassword(password));
+            ServerLogger.logServer(ServerLogger.Level.WARNING, "Password mismatch!");
 
             return null;
         } else if (user2.isPresent()) {

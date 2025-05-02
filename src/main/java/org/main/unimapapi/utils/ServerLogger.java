@@ -11,6 +11,8 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerLogger {
     public enum Level {
@@ -20,24 +22,49 @@ public class ServerLogger {
     private static final String SERVER_LOG_FILE = "src/main/resources/org.main.unimapapi/logs/server_logs.xml";
     private static final String CLIENT_LOG_FILE = "src/main/resources/org.main.unimapapi/logs/client_logs.xml";
     private static final Level CONFIGURED_LEVEL = Level.valueOf(AppConfig.getLogLevel().toUpperCase());
+    private static final BlockingQueue<LogEntry> logQueue = new LinkedBlockingQueue<>(1000); // 1000 - це максимальний розмір черги
+
+    static {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    LogEntry logEntry = logQueue.take();
+                    saveLogToXml(
+                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                            logEntry.getLevel(),
+                            logEntry.getMessage(),
+                            CLIENT_LOG_FILE,
+                            logEntry.getUserId()
+                    );
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }, "Client-Log-Writer").start();
+    }
 
     public static void logServer(Level level, String message) {
         if (level.ordinal() < CONFIGURED_LEVEL.ordinal()) {
             return;
         }
-        log(level, message, SERVER_LOG_FILE, -1);
+
+        saveLogToXml(
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                level.toString(),
+                message,
+                SERVER_LOG_FILE,
+                -1
+        );
     }
 
     public static void logClient(LogEntry logEntry) {
-        log(Level.valueOf(logEntry.getLevel()), logEntry.getMessage(), CLIENT_LOG_FILE, logEntry.getUserId());
+        if (Level.valueOf(logEntry.getLevel()).ordinal() < CONFIGURED_LEVEL.ordinal()) {
+            return;
+        }
+
+        logQueue.offer(logEntry); // Кладемо в чергу для асинхронної обробки
     }
 
-
-    private static synchronized void log(Level level, String message, String filePath, int userId) {
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-        saveLogToXml(timestamp, level.toString(), message, filePath, userId);
-    }
 
     private static void removeWhitespaceNodes(Node node) {
         NodeList children = node.getChildNodes();
@@ -68,7 +95,6 @@ public class ServerLogger {
             }
 
             Element root = doc.getDocumentElement();
-
             removeWhitespaceNodes(root);
 
             Element log = doc.createElement("log");
@@ -100,8 +126,9 @@ public class ServerLogger {
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(file);
             transformer.transform(source, result);
+
         } catch (Exception e) {
-            System.err.println("SERVER LOGGING ERROR: " + e.getMessage());
+            //System.err.println("SERVER LOGGING ERROR: " + e.getMessage());
         }
     }
 

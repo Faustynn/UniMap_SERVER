@@ -57,7 +57,7 @@ public class UserController {
             String passwordHash = Hashing.hashPassword(password);
             String login = parts[3];
 
-            ServerLogger.logServer(ServerLogger.Level.INFO, "Registration attempt: username=" + username + ", email=" + email + ", login=" + login);
+            ServerLogger.logServer(ServerLogger.Level.INFO, "Registration attempt: username=" + username);
 
             System.out.println("TEST3");
             if (userService.findByLogin(login).isPresent() ||

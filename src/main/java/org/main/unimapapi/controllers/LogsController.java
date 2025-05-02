@@ -9,13 +9,11 @@ import org.springframework.web.bind.annotation.*;
 public class LogsController {
 
     @PostMapping("/log")
-    public String receiveClientLog(@RequestBody LogEntry logEntry) {
+    public void receiveClientLog(@RequestBody LogEntry logEntry) {
         try {
             ServerLogger.logClient(logEntry);
-            return "Client log received successfully.";
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Failed to log client message: " + e.getMessage());
-            return "Error saving client log: " + e.getMessage();
         }
     }
 }
