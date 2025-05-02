@@ -25,6 +25,7 @@ public class LogsController {
             return "Client log received successfully.";
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Failed to log client message: " + e.getMessage());
+            System.out.println("Error saving client log: " + e.getMessage());
             return "Error saving client log: " + e.getMessage();
         }
     }

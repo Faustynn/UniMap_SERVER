@@ -71,7 +71,7 @@ CREATE TABLE public.teachers (
     id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255),
-    phone VARCHAR(20),
+    phone VARCHAR(65),
     office VARCHAR(50)
 );
 
