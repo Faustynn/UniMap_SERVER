@@ -84,7 +84,6 @@ public class UserController {
             }
           //  System.out.println("TEST0");
 
-
             User_dto user_dto = new User_dto(login, email, passwordHash, username, false, false, null, null);
             User user = registrationService.register(user_dto);
 

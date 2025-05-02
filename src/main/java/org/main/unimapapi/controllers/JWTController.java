@@ -40,7 +40,7 @@ public class JWTController {
         String login = tokenService.getLoginFromRefreshToken(refreshToken);
         String newAccessToken = tokenService.createAccessToken(login);
 
-      //  System.out.println("I send new access token " + newAccessToken + " for user " + login);
+        System.out.println("access token " + newAccessToken);
         return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
     }
 }

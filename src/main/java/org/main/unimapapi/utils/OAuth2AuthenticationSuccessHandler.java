@@ -80,7 +80,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         user.setLogin(userDto.getUsername());
         user.setPassword(userDto.getPassword());
         user.setAdmin(userDto.isAdmin());
-        user.setAvatar(userDto.getAvatarBinary().getBytes());
+        user.setAvatar(userDto.getAvatarBinary());
         user.setAvatarFileName(userDto.getAvatarFileName());
         userRepository.save(user);
         return user;

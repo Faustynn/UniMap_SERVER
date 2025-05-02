@@ -92,6 +92,11 @@ public class UserRepository {
         if (existingUser.isPresent()) {
             return false;
         }
+        if(user.getAvatar()== null){
+            String sql = "INSERT INTO user_data (login, email, password, name, is_admin, is_premium, avatar, avatar_file_name) VALUES (?, ?, ?, ?, ?, ?, default, default)";
+            jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(), user.isPremium());
+            return true;
+        }
         String sql = "INSERT INTO user_data (login, email, password, name, is_admin, is_premium, avatar, avatar_file_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(), user.isPremium(), user.getAvatar(), user.getAvatarFileName());
         return true;

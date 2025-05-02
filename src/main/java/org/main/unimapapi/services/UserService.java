@@ -25,7 +25,7 @@ public class UserService {
                 .username(dto.getUsername())
                 .isAdmin(dto.isAdmin())
                 .isPremium(dto.isPremium())
-                .avatar(dto.getAvatarBinary() != null ? dto.getAvatarBinary().getBytes() : null)
+                .avatar(dto.getAvatarBinary() != null ? dto.getAvatarBinary() : null)
                 .avatarFileName(dto.getAvatarFileName())
                 .build();
 

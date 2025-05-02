@@ -45,12 +45,12 @@ public class DataFatcherRepository {
         subject.setPlannedActivities(rs.getString("planned_activities"));
         subject.setEvaluationMethods(rs.getString("evaluation_methods"));
 
-        subject.setAscore(rs.getString("a"));
-        subject.setBscore(rs.getString("b"));
-        subject.setCscore(rs.getString("c"));
-        subject.setDscore(rs.getString("d"));
-        subject.setEscore(rs.getString("e"));
-        subject.setFXscore(rs.getString("fx"));
+        subject.setAscore(rs.getString("a_score"));
+        subject.setBscore(rs.getString("b_score"));
+        subject.setCscore(rs.getString("c_score"));
+        subject.setDscore(rs.getString("d_score"));
+        subject.setEscore(rs.getString("e_score"));
+        subject.setFXscore(rs.getString("fx_score"));
         return subject;
     };
 
@@ -65,12 +65,12 @@ public class DataFatcherRepository {
         String sql = """
                 SELECT\s
                     sub.*,
-                    MAX(CASE WHEN sub_eval.grade = 'A' THEN sub_eval.percent  END) AS A,
-                    MAX(CASE WHEN sub_eval.grade = 'B' THEN sub_eval.percent END) AS B,
-                    MAX(CASE WHEN sub_eval.grade = 'C' THEN sub_eval.percent END) AS C,
-                    MAX(CASE WHEN sub_eval.grade = 'D' THEN sub_eval.percent  END) AS D,
-                    MAX(CASE WHEN sub_eval.grade = 'E' THEN sub_eval.percent  END) AS E,
-                    MAX(CASE WHEN sub_eval.grade = 'Fx' THEN sub_eval.percent  END) AS FX
+                    MAX(CASE WHEN sub_eval.grade = 'A' THEN sub_eval.percent END) AS a_score,
+                    MAX(CASE WHEN sub_eval.grade = 'B' THEN sub_eval.percent END) AS b_score,
+                    MAX(CASE WHEN sub_eval.grade = 'C' THEN sub_eval.percent END) AS c_score,
+                    MAX(CASE WHEN sub_eval.grade = 'D' THEN sub_eval.percent END) AS d_score,
+                    MAX(CASE WHEN sub_eval.grade = 'E' THEN sub_eval.percent END) AS e_score,
+                    MAX(CASE WHEN sub_eval.grade = 'Fx' THEN sub_eval.percent END) AS fx_score
                 FROM\s
                     subjects sub
                 LEFT JOIN\s
@@ -79,6 +79,10 @@ public class DataFatcherRepository {
                     sub.code""";
         return jdbcTemplate.query(sql, subjectsRowMapper);
     }
+
+
+
+
 
     // RowMapper for the teacher + the subjects where he/she teaches (teacher_subject_roles)
     private final RowMapper<Teacher_dto> teachersRowMapper = (rs, rowNum) -> {
@@ -103,28 +107,6 @@ public class DataFatcherRepository {
 
         return teacher;
     };
-
-    /*
-     * Receiving all teachers
-     *
-     * Method: used in TeacherController
-     * SQL: LEFT JOIN `teachers` + `teacher_subject_roles`
-     * Sorting: by tea.id
-     */
-    private List<TeacherSubjectRoles> fetchSubjectsByTeacherId(String teacherId) {
-        String sql = "SELECT * FROM teacher_subject_roles WHERE teacher_id = ?";
-
-        if (teacherId == null || !teacherId.matches("\\d+")) {
-            throw new IllegalArgumentException("teacherId cannot be null or empty");
-        }
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            TeacherSubjectRoles teacherSubjectRoles = new TeacherSubjectRoles();
-            teacherSubjectRoles.setSubjectName(rs.getString("subject_code"));
-            teacherSubjectRoles.setRoles(Arrays.asList(rs.getString("roles").split(",")));
-            return teacherSubjectRoles;
-        }, teacherId);
-    }
 
     public List<Teacher_dto> fetchAllTeachers() {
         String sql = """
