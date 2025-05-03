@@ -46,6 +46,8 @@ public class SecurityConfig {
                                         "/api/unimap_pc/sse/subscribe",
                                         "/api/unimap_pc/sse/status",
 
+                                        //oAuth2
+                                        "/api/unimap_pc/oauth2/**",
 
                                         // Swagger
                                         "/v3/api-docs/**",
@@ -109,16 +111,16 @@ public class SecurityConfig {
 
     private ClientRegistration googleClientRegistration() {
         return CommonOAuth2Provider.GOOGLE.getBuilder("google")
-                .clientId(AppConfig.getOauth2Google_id())
-                .clientSecret(AppConfig.getOauth2Google_secret())
+                .clientId(AppConfig.getGOOGLE_CLIENT_ID())
+                .clientSecret(AppConfig.getGOOGLE_CLIENT_SECRET())
                 .redirectUri("{baseUrl}/oauth2/callback/google")
                 .scope("email", "profile")
                 .build();
     }
     private ClientRegistration facebookClientRegistration() {
         return CommonOAuth2Provider.FACEBOOK.getBuilder("facebook")
-                .clientId(AppConfig.getOauth2Facebook_id())
-                .clientSecret(AppConfig.getOauth2Facebook_secret())
+                .clientId(AppConfig.getFACEBOOK_CLIENT_ID())
+                .clientSecret(AppConfig.getFACEBOOK_CLIENT_SECRET())
                 .redirectUri("{baseUrl}/oauth2/callback/facebook")
                 .scope("email", "public_profile")
                 .build();
