@@ -1,7 +1,5 @@
 package org.main.unimapapi.configs;
 
-import org.main.unimapapi.utils.OAuth2AuthenticationSuccessHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,9 +22,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Autowired
-    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         configureHttpSecurity(http);
@@ -86,12 +81,6 @@ public class SecurityConfig {
                                 ).permitAll()
                                 // All other requests require authorisation
                                 .anyRequest().authenticated()
-                )
-                .oauth2Login(oauth2Login ->
-                        oauth2Login
-                                .loginPage("/login")
-                                .successHandler(oAuth2AuthenticationSuccessHandler)
-                                .failureUrl("/login?error=true")
                 )
                 .logout(logout ->
                         logout
