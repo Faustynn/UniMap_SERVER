@@ -1,6 +1,5 @@
 package org.main.unimapapi;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.main.unimapapi.dtos.User_dto;
@@ -9,8 +8,8 @@ import org.main.unimapapi.repository_queries.UserRepository;
 import org.main.unimapapi.services.RegistrationService;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.Base64;
 import java.util.Optional;
@@ -20,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@WithMockUser(username = "nazar")
 public class RegistrationServiceTest {
 
     @Mock
@@ -27,11 +27,6 @@ public class RegistrationServiceTest {
 
     @InjectMocks
     private RegistrationService registrationService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testRegister_validUser_savesSuccessfully() {
@@ -76,19 +71,25 @@ public class RegistrationServiceTest {
         assertNotNull(result);
         assertNull(result.getAvatar());
         assertNull(result.getAvatarFileName());
+
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void testRegister_duplicateLogin_throwsException() {
+    void testRegister_repoThrows_throwsException() {
         User_dto dto = new User_dto();
         dto.setLogin("duplicate");
         dto.setPassword("pwd");
         dto.setEmail("dupe@example.com");
         dto.setUsername("Dupe");
 
-        when(userRepository.findByLogin("duplicate")).thenReturn(Optional.of(new User()));
+        when(userRepository.save(any(User.class)))
+                .thenThrow(new RuntimeException("duplicate key"));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> registrationService.register(dto));
-        assertTrue(exception.getMessage().contains("Error during user registration"));
+        RuntimeException ex = assertThrows(RuntimeException.class,
+                () -> registrationService.register(dto));
+        assertTrue(ex.getMessage().contains("Error during user registration"));
+
+        verify(userRepository, times(1)).save(any(User.class));
     }
 }
