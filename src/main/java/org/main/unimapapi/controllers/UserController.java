@@ -54,7 +54,7 @@ public class UserController {
     @PostMapping("register")
     public ResponseEntity<User> register(@RequestBody String jsonData) {
         try {
-        //    System.out.println("TEST "+jsonData);
+            System.out.println("TEST "+jsonData);
 
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
@@ -107,6 +107,7 @@ public class UserController {
      */
     @PostMapping("authenticate")
     public ResponseEntity<?> authenticate(@RequestBody String jsonData) {
+            System.out.println("TEST "+jsonData);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
@@ -179,13 +180,14 @@ public class UserController {
 
 
     /*
-     * Method: POST
+     * Method: PUT
      * Endpoint: /user/email/password
      * Body: string "email:new_password"
      */
-    @PostMapping("user/email/password")
+    @PutMapping("user/email/password")
     public ResponseEntity<Void> changePassword(@RequestBody String jsonData) {
         try {
+            System.out.println("TEST "+jsonData);
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(jsonData);
 
@@ -253,7 +255,7 @@ public class UserController {
      */
     @DeleteMapping("user/delete/all/{userId}")
     private ResponseEntity<Boolean> deleteUserData(@PathVariable String userId,@RequestHeader("Authorization") String accessToken) {
-     //   System.out.println("I have delete userdata request in id: "+userId);
+        System.out.println("I have delete userdata request in id: "+userId);
         try {
             String token = accessToken.replace("Bearer ", "");
             String username = tokenService.getLoginFromAccessToken(token);
@@ -261,7 +263,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-        //    System.out.println("I have delete userdata request in id: "+userId);
+        //    System.out.println("I have delete userdata reques in id: "+userId);
             userService.deleteAllUserInfo(Long.parseLong(userId));
             return ResponseEntity.ok(true);
         } catch (Exception e) {
@@ -278,7 +280,7 @@ public class UserController {
      */
     @DeleteMapping("user/delete/comments/{userId}")
     private ResponseEntity<Boolean> deleteUserComments(@PathVariable String userId, @RequestHeader("Authorization") String accessToken) {
-     //   System.out.println("I have delete user comments request in id: "+userId);
+        System.out.println("TEST "+userId);
         try {
             String token = accessToken.replace("Bearer ", "");
             String username = tokenService.getLoginFromAccessToken(token);
@@ -339,6 +341,7 @@ public class UserController {
 
     @PutMapping("/change_email")
     public ResponseEntity<String> changeEmail(@RequestBody EmailChangeRequest request) {
+        System.out.println("Change email request: " + request);
         if (request == null || request.getEmail() == null || request.getLogin() == null) {
             return ResponseEntity.badRequest().body("Invalid request. Email and avatar path are required.");
         }
@@ -368,7 +371,8 @@ public class UserController {
     }
 
     @PutMapping("/change_username")
-    public ResponseEntity<String> changeAvatar(@RequestBody UsernameChangeRequest request) {
+    public ResponseEntity<String> changeUsername(@RequestBody UsernameChangeRequest request) {
+        System.out.println("Change username request: " + request);
         if (request == null || request.getEmail() == null || request.getUsername() == null) {
             return ResponseEntity.badRequest().body("Invalid request. Email and avatar path are required.");
         }
@@ -376,9 +380,36 @@ public class UserController {
         boolean avatarChanged = userService.changeUsername(request.getEmail(), request.getUsername());
 
         if (avatarChanged) {
+            System.out.println("Username changed successfully.");
             return ResponseEntity.ok("Avatar changed successfully.");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+        }
+    }
+
+
+    @PutMapping("/premium/{login}")
+    public ResponseEntity<?> changePremium(@PathVariable String login,@RequestHeader("Authorization") String accessToken) {
+        System.out.println("I have premium request in id: "+ login);
+        try {
+            String token = accessToken.replace("Bearer ", "");
+            String username = tokenService.getLoginFromAccessToken(token);
+
+            if (!tokenService.validateAccessToken(token, username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token.");
+            }
+
+            User user = userService.updatePremiumStatus(login);
+
+            if (user != null) {
+                return ResponseEntity.ok()
+                        .body(Map.of("user", user));
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            }
+        } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error changing premium status: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error changing premium status: " + e.getMessage());
         }
     }
 }

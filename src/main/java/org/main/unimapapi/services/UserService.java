@@ -110,4 +110,17 @@ public class UserService {
                     return false;
                 });
     }
+
+    public User updatePremiumStatus(String login) {
+        return userRepository.findByLogin(login)
+                .map(user -> {
+                    user.setPremium(!user.isPremium());
+                    userRepository.update(user);
+                    return user;
+                })
+                .orElseGet(() -> {
+                    ServerLogger.logServer(ServerLogger.Level.WARNING, "User not found!");
+                    return null;
+                });
+    }
 }
