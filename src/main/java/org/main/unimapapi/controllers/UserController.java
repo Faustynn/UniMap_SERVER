@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseCookie;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -263,7 +264,7 @@ public class UserController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-        //    System.out.println("I have delete userdata reques in id: "+userId);
+        //    System.out.println("I have delete userdata request in id: "+userId);
             userService.deleteAllUserInfo(Long.parseLong(userId));
             return ResponseEntity.ok(true);
         } catch (Exception e) {
@@ -280,7 +281,7 @@ public class UserController {
      */
     @DeleteMapping("user/delete/comments/{userId}")
     private ResponseEntity<Boolean> deleteUserComments(@PathVariable String userId, @RequestHeader("Authorization") String accessToken) {
-        System.out.println("TEST "+userId);
+        System.out.println("I have delete user comments request in id: "+userId);
         try {
             String token = accessToken.replace("Bearer ", "");
             String username = tokenService.getLoginFromAccessToken(token);
@@ -339,9 +340,42 @@ public class UserController {
     }
 
 
+    @PutMapping(value = "/change_avatar", consumes = {"multipart/form-data"})
+    public ResponseEntity<String> changeAvatar(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestParam("file") MultipartFile file) {
+
+        try {
+            if (file == null || file.isEmpty()) {
+                return ResponseEntity.badRequest().body("Invalid request. File is required.");
+            }
+
+            String token = authorizationHeader.replace("Bearer ", "");
+            if (token.isEmpty() || !jwtToken.validateAccessToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized. Token is required.");
+            }
+
+            String login = jwtToken.extractUsernameFromAccessToken(token);
+
+            boolean avatarUpdated = userService.updateAvatarData(
+                    login,
+                    file.getBytes(),
+                    file.getOriginalFilename()
+            );
+
+            if (avatarUpdated) {
+                return ResponseEntity.ok("Avatar updated successfully.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");
+            }
+        } catch (Exception e) {
+            ServerLogger.logServer(ServerLogger.Level.ERROR, "Error processing the avatar: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the avatar file: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/change_email")
     public ResponseEntity<String> changeEmail(@RequestBody EmailChangeRequest request) {
-        System.out.println("Change email request: " + request);
         if (request == null || request.getEmail() == null || request.getLogin() == null) {
             return ResponseEntity.badRequest().body("Invalid request. Email and avatar path are required.");
         }
@@ -380,7 +414,6 @@ public class UserController {
         boolean avatarChanged = userService.changeUsername(request.getEmail(), request.getUsername());
 
         if (avatarChanged) {
-            System.out.println("Username changed successfully.");
             return ResponseEntity.ok("Avatar changed successfully.");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found.");

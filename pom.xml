@@ -61,6 +61,13 @@
             <scope>test</scope>
         </dependency>
 
+        // Firebase
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
+        </dependency>
+
         <!-- Postgres SQL -->
         <dependency>
             <groupId>org.postgresql</groupId>

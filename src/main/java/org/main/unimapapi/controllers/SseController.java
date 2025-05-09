@@ -56,4 +56,5 @@ public class SseController {
     public String status() {
         return "{\"status\":\"running\",\"timestamp\":\"" + System.currentTimeMillis() + "\"}";
     }
+
 }

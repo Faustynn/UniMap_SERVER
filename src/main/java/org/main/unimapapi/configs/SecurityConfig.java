@@ -81,6 +81,13 @@ public class SecurityConfig {
                                         "/api/unimap_pc/user/delete/comments/**",
                                         "/api/unimap_pc/user/delete/all/**",
 
+                                        "/api/notifications/**",
+                                        "/api/notifications/register-device",
+                                        "/api/notifications/test",
+                                        "/api/notifications/send-news",
+                                        "/api/notifications/device-count",
+                                        "/api/notifications/unregister-device/{deviceId}",
+
                                         // Страница ошибки
                                         "/error"
                                 ).permitAll()

@@ -101,3 +101,12 @@ CREATE TABLE public.news (
     content TEXT NOT NULL,
     date_of_creation TIMESTAMP NOT NULL
 );
+
+
+-- Create notifications table
+CREATE TABLE device_registrations (
+    device_id VARCHAR(255) NOT NULL PRIMARY KEY,
+    fcm_token VARCHAR(255) NOT NULL,
+    platform VARCHAR(50) NOT NULL,
+    last_updated TIMESTAMP NOT NULL
+);

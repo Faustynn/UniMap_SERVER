@@ -17,6 +17,7 @@ public class CorsConfig {
         config.setAllowedOrigins(List.of(
                 "http://10.0.2.2",         // localhost
                 "http://147.175.162.157",    // IP now
+                "http://192.168.0.119",
                 "http://localhost",        // локальный хост
                 "http://147.*.*.*"       // another IPs
         ));
