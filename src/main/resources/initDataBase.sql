@@ -99,14 +99,20 @@ CREATE TABLE public.news (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
     date_of_creation TIMESTAMP NOT NULL
 );
 
 
--- Create notifications table
-CREATE TABLE device_registrations (
-    device_id VARCHAR(255) NOT NULL PRIMARY KEY,
-    fcm_token VARCHAR(255) NOT NULL,
-    platform VARCHAR(50) NOT NULL,
-    last_updated TIMESTAMP NOT NULL
+
+-- Create devices table
+CREATE TABLE devices (
+                         id SERIAL PRIMARY KEY,
+                         device_id VARCHAR(255) NOT NULL UNIQUE,
+                         push_token VARCHAR(255),
+                         platform VARCHAR(50),
+                         type VARCHAR(50),
+                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                         last_active_at TIMESTAMP
 );
