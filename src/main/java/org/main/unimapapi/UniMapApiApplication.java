@@ -3,6 +3,7 @@ package org.main.unimapapi;
 // Import the necessary Spring Boot classes
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 
 /*
@@ -16,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  * The scanBasePackages parameter specifies where to look for project components
  */
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = "org.main.unimapapi")
 public class UniMapApiApplication {
 

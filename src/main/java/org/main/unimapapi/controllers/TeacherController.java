@@ -44,7 +44,7 @@ public class TeacherController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("teachers", dataFatcherRepository.fetchAllTeachers());
-            //System.out.println("ODOSLAL SOM "+response);
+//            System.out.println("ODOSLAL SOM "+response);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

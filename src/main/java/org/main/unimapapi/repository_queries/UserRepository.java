@@ -57,6 +57,22 @@ public class UserRepository {
         }
     }
 
+    public Optional<Long> findIdByEmail(String email) {
+        if (email == null) {
+            throw new IllegalArgumentException("EMAIL CAN NOT BE NULL");
+        }
+
+        String sql = "SELECT id FROM user_data WHERE email = ?";
+        try {
+            Long id = jdbcTemplate.queryForObject(sql, Long.class, email);
+            return Optional.ofNullable(id);
+        } catch (Exception e) {
+            //System.err.println("Error while fetching user ID by email: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+
     public Optional<User> findByLogin(String login) {
         if (login == null) {
             throw new IllegalArgumentException("LOGIN CAN NOT BE NULL");
