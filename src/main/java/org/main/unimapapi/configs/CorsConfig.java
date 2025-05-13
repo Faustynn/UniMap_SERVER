@@ -16,8 +16,10 @@ public class CorsConfig {
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
                 "http://10.0.2.2",         // localhost
-                "http://147.175.162.157",    // IP now
+                "http://147.175.162.157",    // eduoram
                 "http://192.168.0.119",
+                "10.15.35.136",
+                "http:/172.20.10.14", // kosta
                 "http://localhost",        // локальный хост
                 "http://147.*.*.*"       // another IPs
         ));
