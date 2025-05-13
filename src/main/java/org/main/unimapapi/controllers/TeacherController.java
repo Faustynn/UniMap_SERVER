@@ -46,6 +46,7 @@ public class TeacherController {
             response.put("teachers", dataFatcherRepository.fetchAllTeachers());
          //   System.out.println("ODOSLAL SOM "+response);
 
+
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error fetching teachers: " + e.getMessage());

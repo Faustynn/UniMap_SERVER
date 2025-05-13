@@ -444,5 +444,14 @@ public class UserController {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error changing premium status: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error changing premium status: " + e.getMessage());
         }
+
+
+    }
+
+    @GetMapping("/user/id-by-email/{email}")
+    public ResponseEntity<Long> getUserIdByEmail(@PathVariable String email) {
+        return userService.findIdByEmail(email)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

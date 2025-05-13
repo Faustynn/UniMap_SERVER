@@ -89,7 +89,10 @@ public class SecurityConfig {
                                         "/api/notifications/unregister-device/{deviceId}",
 
                                         // Страница ошибки
-                                        "/error"
+                                        "/error",
+
+                                        "/api/unimap_pc/user/id-by-email/**",
+                                        "/api/temp-user/**"
                                 ).permitAll()
                                 // Все остальные запросы требуют авторизации
                                 .anyRequest().authenticated()

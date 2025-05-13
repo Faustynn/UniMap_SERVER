@@ -51,6 +51,7 @@ public class DataFatcherRepository {
         subject.setDscore(rs.getString("d_score"));
         subject.setEscore(rs.getString("e_score"));
         subject.setFXscore(rs.getString("fx_score"));
+
         return subject;
     };
 

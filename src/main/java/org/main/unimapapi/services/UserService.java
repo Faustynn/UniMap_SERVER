@@ -50,6 +50,10 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    public Optional<Long> findIdByEmail(String email) {
+        return userRepository.findIdByEmail(email);
+    }
+
     public Optional<User> findByLogin(String login) {
         return userRepository.findByLogin(login);
     }
