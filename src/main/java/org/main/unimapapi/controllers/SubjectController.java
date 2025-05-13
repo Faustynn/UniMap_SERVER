@@ -42,6 +42,7 @@ public class SubjectController {
 
             Map<String, Object> response = new HashMap<>();
             response.put("subjects", dataFatcherRepository.fetchAllSubjects());
+         //   System.out.println("I SEND: "+ response);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error fetching subjects: " + e.getMessage());
