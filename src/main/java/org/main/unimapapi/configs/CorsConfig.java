@@ -15,15 +15,10 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
-                "http://10.0.2.2",         // localhost
-                "http://147.175.162.157",    // eduoram
-                "http://192.168.0.119",
-                "10.15.35.136",
-                "http:/172.20.10.14", // kosta
-                "http://localhost",        // локальный хост
-                "http://147.*.*.*"       // another IPs
+                "http://147.175.161.201",
+                "http://localhost"
         ));
-        config.addAllowedOriginPattern("http://192.168.0.*");
+        config.addAllowedOriginPattern("http://147.175.*.*");
 
         config.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

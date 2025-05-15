@@ -42,7 +42,7 @@ public class CommentsController {
             return ResponseEntity.ok(subjectsList);
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error fetching comments for subject: " + subjectId);
-           // e.printStackTrace();
+            // e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -58,7 +58,7 @@ public class CommentsController {
             return ResponseEntity.ok(teachersList);
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error fetching comments for teacher: " + teacherId);
-        //    e.printStackTrace();
+            //    e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }
@@ -77,7 +77,7 @@ public class CommentsController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-      //      System.out.println("TEEEEEEEEST " + payload);
+            //      System.out.println("TEEEEEEEEST " + payload);
 
             int userId = (payload.get("user_id") instanceof Integer)
                     ? (Integer) payload.get("user_id")
@@ -113,30 +113,26 @@ public class CommentsController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            System.out.println("jeloooo  "+payload);
-
             int userId = (payload.get("user_id") instanceof Integer)
                     ? (Integer) payload.get("user_id")
-                    : Integer.parseInt((String) payload.get("user_id"));
-            String teacherId = (String) payload.get("code");
-            String description = (String) payload.get("text");
+                    : Integer.parseInt(String.valueOf(payload.get("user_id")));
+            String teacherId = String.valueOf(payload.get("code"));
+            String description = String.valueOf(payload.get("text"));
             int rating = (payload.get("rating") instanceof Integer)
                     ? (Integer) payload.get("rating")
-                    : Integer.parseInt((String) payload.get("rating"));
+                    : Integer.parseInt(String.valueOf(payload.get("rating")));
             int levelAccess = (payload.get("levelAccess") instanceof Integer)
                     ? (Integer) payload.get("levelAccess")
-                    : Integer.parseInt((String) payload.get("levelAccess"));
+                    : Integer.parseInt(String.valueOf(payload.get("levelAccess")));
 
             commentsRepository.addNewTeacherComment(userId, teacherId, description, rating, levelAccess);
 
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error adding new teacher comment: " + e.getMessage());
-          //  e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
     /*
      * Method: DELETE
      * Endpoint: /subject/{comment_id}
@@ -148,7 +144,7 @@ public class CommentsController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error deleting subject comment: " + e.getMessage());
-          //  e.printStackTrace();
+            //  e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -164,7 +160,7 @@ public class CommentsController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (Exception e) {
             ServerLogger.logServer(ServerLogger.Level.ERROR, "Error deleting teacher comment: " + e.getMessage());
-        //    e.printStackTrace();
+            //    e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

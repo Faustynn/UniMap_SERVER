@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/unimap_pc/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
     private final DeviceService deviceService;
