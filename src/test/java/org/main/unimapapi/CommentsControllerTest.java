@@ -10,6 +10,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.springframework.dao.DataIntegrityViolationException;
+
+
 
 import java.util.Collections;
 
@@ -28,9 +32,6 @@ public class CommentsControllerTest {
     @MockBean
     private CommentsRepository commentsRepository;
 
-    @MockBean
-    private TokenService tokenService;
-
     @Test
     public void testGetAllSubjectsComments_returnsOk() throws Exception {
         when(commentsRepository.getAllSubjectsComments("MAT101"))
@@ -40,4 +41,18 @@ public class CommentsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
+
+    @Test
+    public void testGetAllTeachersComments_returnOk() throws Exception {
+        when(commentsRepository.getAllTeachersComments("0"))
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/unimap_pc/comments/teacher/0"))
+                .andExpect((status().isOk()))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+    }
+
+
+
+
 }
