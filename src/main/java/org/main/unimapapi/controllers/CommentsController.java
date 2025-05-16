@@ -1,5 +1,7 @@
 package org.main.unimapapi.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.main.unimapapi.repository_queries.CommentsRepository;
 import org.main.unimapapi.dtos.Comment_dto;
 import org.main.unimapapi.services.TokenService;
@@ -13,10 +15,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Controller for managing comments on subjects and teachers
+/**
+ * REST controller for managing comments on subjects and teachers.
  *
- * URL prefix: /api/unimap_pc/comments
+ * <p><strong>Base URL:</strong> <code>/api/unimap_pc/comments</code></p>
  */
 @RestController
 @RequestMapping("/api/unimap_pc/comments")
@@ -31,10 +33,14 @@ public class CommentsController {
         this.tokenService = tokenService;
     }
 
-    /*
-     * Method: GET
-     * Endpoint: /subject/{subject_id}
+    /**
+     * Retrieves all comments associated with a specific subject.
+     *
+     * @param subjectId the subject code
+     * @return list of {@link Comment_dto} objects
      */
+    @Operation(summary = "Get subject comments", description = "Returns all comments for a given subject.")
+    @ApiResponse(responseCode = "200", description = "Comments retrieved successfully")
     @GetMapping("/subject/{subject_id}")
     public ResponseEntity<List<Comment_dto>> getAllSubjectsComments(@PathVariable("subject_id") String subjectId) {
         try {
@@ -47,10 +53,14 @@ public class CommentsController {
         }
     }
 
-    /*
-     * Method: GET
-     * Endpoint: /teacher/{teacher_id}
+    /**
+     * Retrieves all comments associated with a specific teacher.
+     *
+     * @param teacherId the teacher's identifier
+     * @return list of {@link Comment_dto} objects
      */
+    @Operation(summary = "Get teacher comments", description = "Returns all comments for a given teacher.")
+    @ApiResponse(responseCode = "200", description = "Comments retrieved successfully")
     @GetMapping("/teacher/{teacher_id}")
     public ResponseEntity<List<Comment_dto>> getAllTeachersComments(@PathVariable("teacher_id") String teacherId) {
         try {
@@ -63,11 +73,15 @@ public class CommentsController {
         }
     }
 
-    /*
-     * Method: POST
-     * Endpoint: /subject
-     * Authorisation header required (JWT access token)
+    /**
+     * Adds a new comment to a subject.
+     *
+     * @param payload request body containing user_id, code, text, rating, and levelAccess
+     * @param accessToken JWT access token for authorization
+     * @return 201 Created or appropriate error response
      */
+    @Operation(summary = "Add subject comment", description = "Adds a new comment for a subject. Requires authentication.")
+    @ApiResponse(responseCode = "201", description = "Comment added successfully")
     @PostMapping("/subject")
     public ResponseEntity<Void> addNewSubjectComment(@RequestBody Map<String, Object> payload, @RequestHeader("Authorization") String accessToken) {
         try {
@@ -93,11 +107,15 @@ public class CommentsController {
         }
     }
 
-    /*
-     * Method: POST
-     * Endpoint: /teacher
-     * Authorisation header required (JWT access token)
+    /**
+     * Adds a new comment to a teacher.
+     *
+     * @param payload request body containing user_id, code, text, rating, and levelAccess
+     * @param accessToken JWT access token for authorization
+     * @return 201 Created or appropriate error response
      */
+    @Operation(summary = "Add teacher comment", description = "Adds a new comment for a teacher. Requires authentication.")
+    @ApiResponse(responseCode = "201", description = "Comment added successfully")
     @PostMapping("/teacher")
     public ResponseEntity<Void> addNewTeacherComment(@RequestBody Map<String, Object> payload, @RequestHeader("Authorization") String accessToken) {
         try {
@@ -123,10 +141,14 @@ public class CommentsController {
         }
     }
 
-    /*
-     * Method: DELETE
-     * Endpoint: /subject/{comment_id}
+    /**
+     * Deletes a subject comment by its ID.
+     *
+     * @param commentId the ID of the comment to delete
+     * @return 204 No Content or appropriate error response
      */
+    @Operation(summary = "Delete subject comment", description = "Deletes a subject comment by its ID.")
+    @ApiResponse(responseCode = "204", description = "Comment deleted successfully")
     @DeleteMapping("/subject/{comment_id}")
     public ResponseEntity<Void> deleteSubjectComment(@PathVariable("comment_id") int commentId) {
         try {
@@ -139,10 +161,14 @@ public class CommentsController {
         }
     }
 
-    /*
-     * Method: DELETE
-     * Endpoint: /teacher/{comment_id}
+    /**
+     * Deletes a teacher comment by its ID.
+     *
+     * @param commentId the ID of the comment to delete
+     * @return 204 No Content or appropriate error response
      */
+    @Operation(summary = "Delete teacher comment", description = "Deletes a teacher comment by its ID.")
+    @ApiResponse(responseCode = "204", description = "Comment deleted successfully")
     @DeleteMapping("/teacher/{comment_id}")
     public ResponseEntity<Void> deleteTeacherComment(@PathVariable("comment_id") int commentId) {
         try {

@@ -15,6 +15,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.annotation.PostConstruct;
 
+/**
+ * Utility component for generating, parsing, and validating JWT access and refresh tokens.
+ * <p>
+ * Uses HMAC-SHA signing keys loaded from {@link AppConfig}.
+ * Supports both access and refresh tokens, each with different keys and expiration times.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtToken {
@@ -24,6 +30,10 @@ public class JwtToken {
     private Key accessSigningKey;
     private Key refreshSigningKey;
 
+    /**
+     * Initializes signing keys after component construction.
+     * Uses secret keys provided by {@link AppConfig}.
+     */
     @PostConstruct
     public void init() {
         accessSigningKey = Keys.hmacShaKeyFor(AppConfig.getAccessKey().getBytes());
@@ -31,6 +41,12 @@ public class JwtToken {
     }
 
 
+    /**
+     * Generates a signed JWT access token.
+     *
+     * @param login username or login identifier
+     * @return JWT access token as a string
+     */
     public String generateAccessToken(String login) {
         return Jwts.builder()
                 .setSubject(login)
@@ -41,6 +57,12 @@ public class JwtToken {
     }
 
 
+    /**
+     * Generates a signed JWT refresh token.
+     *
+     * @param login username or login identifier
+     * @return JWT refresh token as a string
+     */
     public String generateRefreshToken(String login) {
         return Jwts.builder()
                 .setSubject(login)
@@ -51,6 +73,13 @@ public class JwtToken {
     }
 
 
+    /**
+     * Extracts username (subject) from the access token.
+     *
+     * @param token access token
+     * @return username from token
+     * @throws ResponseStatusException if token is invalid or expired
+     */
     public String extractUsernameFromAccessToken(String token) {
         try {
             return extractClaims(token, accessSigningKey).getSubject();
@@ -61,6 +90,13 @@ public class JwtToken {
     }
 
 
+    /**
+     * Extracts username (subject) from the refresh token.
+     *
+     * @param token refresh token
+     * @return username from token
+     * @throws ResponseStatusException if token is invalid or expired
+     */
     public String extractUsernameFromRefreshToken(String token) {
         try {
             return extractClaims(token, refreshSigningKey).getSubject();
@@ -70,6 +106,13 @@ public class JwtToken {
         }
     }
 
+    /**
+     * Parses token and returns all claims (internal use).
+     *
+     * @param token JWT string
+     * @param key   signing key to validate
+     * @return parsed {@link Claims}
+     */
     private Claims extractClaims(String token, Key key) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -79,6 +122,13 @@ public class JwtToken {
     }
 
 
+    /**
+     * Validates access token with username and expiration check.
+     *
+     * @param token    access token
+     * @param username expected subject (username)
+     * @return true if valid, false otherwise
+     */
     public boolean validateAccessToken(String token, String username) {
         try {
             Claims claims = extractClaims(token, accessSigningKey);
@@ -91,6 +141,12 @@ public class JwtToken {
     }
 
 
+    /**
+     * Validates access token against itself (extracts subject internally).
+     *
+     * @param token access token
+     * @return true if valid, false otherwise
+     */
     public boolean validateAccessToken(String token) {
         try {
             String username = extractUsernameFromAccessToken(token);
@@ -104,6 +160,13 @@ public class JwtToken {
     }
 
 
+    /**
+     * Validates refresh token against expected username.
+     *
+     * @param token    refresh token
+     * @param username expected username (subject)
+     * @return true if valid, false otherwise
+     */
     public boolean validateRefreshToken(String token, String username) {
         try {
             Claims claims = extractClaims(token, refreshSigningKey);
@@ -115,7 +178,12 @@ public class JwtToken {
         }
     }
 
-
+    /**
+     * Extracts expiration date from a refresh token.
+     *
+     * @param token refresh token
+     * @return expiration {@link Date}
+     */
     public Date extractExpiration(String token) {
         return extractClaims(token, refreshSigningKey).getExpiration();
     }

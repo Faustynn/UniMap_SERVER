@@ -10,12 +10,24 @@ import org.springframework.stereotype.Service;
 
 import java.util.Base64;
 
+/**
+ * Service for handling user registration.
+ *
+ * <p>Builds a {@link User} entity from a {@link User_dto} and persists it using {@link UserRepository}.</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class RegistrationService {
     private final UserRepository userRepository;
 
 
+    /**
+     * Registers a new user based on the provided data transfer object.
+     *
+     * @param dto user registration data
+     * @return the created {@link User} entity
+     * @throws RuntimeException if the registration fails for any reason
+     */
     public User register(User_dto dto) {
         try {
             User user = User.builder()

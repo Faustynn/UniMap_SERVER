@@ -15,12 +15,20 @@ import javax.mail.internet.MimeMessage;
 import java.util.Properties;
 
 /**
- * Service for sending emails asynchronously
+ * Utility service for sending emails asynchronously using SMTP.
+ * <p>
+ * It sends confirmation codes to users and handles SMTP configuration using values from {@link AppConfig}.
  */
 @Service
 @RequiredArgsConstructor
 public class EmailSender {
 
+    /**
+     * Sends a verification code to the provided recipient email address.
+     *
+     * @param recipient the target email address
+     * @param code      the confirmation code to send
+     */
     @Async
     public void sendVerificationCode(String recipient, String code) {
         String sender = AppConfig.getSender();
@@ -40,6 +48,13 @@ public class EmailSender {
         }
     }
 
+    /**
+     * Creates the SMTP properties used for the session.
+     *
+     * @param host SMTP server host
+     * @param port SMTP server port
+     * @return a configured {@link Properties} object
+     */
     private Properties createMailProperties(String host, String port) {
         Properties properties = new Properties();
         properties.setProperty("mail.smtp.host", host);
@@ -49,6 +64,14 @@ public class EmailSender {
         return properties;
     }
 
+    /**
+     * Creates an authenticated mail session.
+     *
+     * @param sender     sender email address
+     * @param password   sender password
+     * @param properties SMTP configuration properties
+     * @return a configured {@link Session} instance
+     */
     private Session createMailSession(String sender, String password, Properties properties) {
         return Session.getInstance(properties, new javax.mail.Authenticator() {
             @Override
@@ -58,6 +81,16 @@ public class EmailSender {
         });
     }
 
+    /**
+     * Composes the email message to be sent.
+     *
+     * @param session   mail session
+     * @param sender    sender email
+     * @param recipient recipient email
+     * @param code      confirmation code to include in the message
+     * @return a fully built {@link MimeMessage}
+     * @throws MessagingException if the message could not be created
+     */
     private MimeMessage createMessage(Session session, String sender, String recipient, String code)
             throws MessagingException {
         MimeMessage message = new MimeMessage(session);

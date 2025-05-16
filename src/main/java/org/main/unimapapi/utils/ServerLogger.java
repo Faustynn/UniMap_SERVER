@@ -12,7 +12,16 @@ import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Utility class for logging server and client events to XML files.
+ * <p>
+ * Supports structured logging with timestamp, log level, user ID (if applicable), and message content.
+ * Logging behavior is driven by the configured log level in {@link AppConfig}.
+ */
 public class ServerLogger {
+    /**
+     * Logging levels in ascending order of severity.
+     */
     public enum Level {
         INFO, WARNING, ERROR
     }
@@ -21,6 +30,12 @@ public class ServerLogger {
     private static final String CLIENT_LOG_FILE = AppConfig.getCLIENT_LOG_FILE();
     private static final Level CONFIGURED_LEVEL = Level.valueOf(AppConfig.getLogLevel().toUpperCase());
 
+    /**
+     * Logs a server-side message to the configured XML file if its level is equal or higher than the configured threshold.
+     *
+     * @param level   log severity level (INFO, WARNING, ERROR)
+     * @param message message to log
+     */
     public static void logServer(Level level, String message) {
         if (level.ordinal() < CONFIGURED_LEVEL.ordinal()) {
             return;
@@ -28,17 +43,35 @@ public class ServerLogger {
         log(level, message, SERVER_LOG_FILE, -1);
     }
 
+
+    /**
+     * Logs a client-side message from a {@link LogEntry} object to the configured XML file.
+     *
+     * @param logEntry DTO containing user ID, timestamp, level, and message
+     */
     public static void logClient(LogEntry logEntry) {
         log(Level.valueOf(logEntry.getLevel()), logEntry.getMessage(), CLIENT_LOG_FILE, logEntry.getUserId());
     }
 
-
+    /**
+     * Internal method that performs the actual writing to the XML log file.
+     *
+     * @param level    severity level
+     * @param message  message to write
+     * @param filePath path to the log file
+     * @param userId   ID of the user (or -1 if not applicable)
+     */
     private static synchronized void log(Level level, String message, String filePath, int userId) {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         saveLogToXml(timestamp, level.toString(), message, filePath, userId);
     }
 
+    /**
+     * Removes empty whitespace nodes from the given XML DOM node recursively.
+     *
+     * @param node XML node to clean
+     */
     private static void removeWhitespaceNodes(Node node) {
         NodeList children = node.getChildNodes();
         for (int i = children.getLength() - 1; i >= 0; i--) {
@@ -51,6 +84,15 @@ public class ServerLogger {
         }
     }
 
+    /**
+     * Writes the log entry to the given XML file, creating the file or appending to it as needed.
+     *
+     * @param timestamp timestamp of the log event
+     * @param level     log level (e.g., INFO, WARNING)
+     * @param message   the log message
+     * @param filePath  output file path
+     * @param userId    user ID (-1 if not applicable)
+     */
     private static synchronized void saveLogToXml(String timestamp, String level, String message, String filePath, int userId) {
         try {
             File file = new File(filePath);

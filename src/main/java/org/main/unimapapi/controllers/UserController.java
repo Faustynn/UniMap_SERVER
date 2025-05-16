@@ -3,6 +3,9 @@ package org.main.unimapapi.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.EmailChangeRequest;
 import org.main.unimapapi.dtos.PasswordChangeRequest;
@@ -28,12 +31,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
-/*
- * Controller that manages registration, authentication, access restoration,
- * email confirmation and deletion of user data
- *
- * URL prefix: /api/unimap_pc/
- */
+@Tag(name = "User")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/unimap_pc/")
@@ -52,6 +50,10 @@ public class UserController {
      * Body: string "username:password:email:login"
      * Response: User object or error code
      */
+    @Operation(summary = "Register a new user")
+    @ApiResponse(responseCode = "200", description = "User registered successfully")
+    @ApiResponse(responseCode = "303", description = "User already exists")
+    @ApiResponse(responseCode = "400", description = "Bad request")
     @PostMapping("register")
     public ResponseEntity<User> register(@RequestBody String jsonData) {
         try {
@@ -106,6 +108,9 @@ public class UserController {
      * Body: string "login:password"
      * Response: User + accessToken + refreshToken (in cookie)
      */
+    @Operation(summary = "Authenticate user and return tokens")
+    @ApiResponse(responseCode = "200", description = "Authentication successful")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
     @PostMapping("authenticate")
     public ResponseEntity<?> authenticate(@RequestBody String jsonData) {
             System.out.println("TEST "+jsonData);
@@ -162,6 +167,10 @@ public class UserController {
      * Endpoint: /user/email/{email}
      * Action: generate and send confirmation code
      */
+
+    @Operation(summary = "Send confirmation code to email")
+    @ApiResponse(responseCode = "200", description = "Code sent successfully")
+    @ApiResponse(responseCode = "404", description = "Email not found")
     @GetMapping("user/email/{email}")
     public ResponseEntity<Void> confirmEmailExists(@PathVariable String email) {
         try {
@@ -185,6 +194,9 @@ public class UserController {
      * Endpoint: /user/email/password
      * Body: string "email:new_password"
      */
+    @Operation(summary = "Change password by email")
+    @ApiResponse(responseCode = "200", description = "Password changed successfully")
+    @ApiResponse(responseCode = "404", description = "User not found")
     @PutMapping("user/email/password")
     public ResponseEntity<Void> changePassword(@RequestBody String jsonData) {
         try {
@@ -223,6 +235,9 @@ public class UserController {
      * Body: string "email:code"
      * Response: true / false
      */
+
+    @Operation(summary = "Compare email and confirmation code")
+    @ApiResponse(responseCode = "200", description = "Comparison successful")
     @PostMapping("user/email/code")
     public ResponseEntity<Boolean> compareCodes(@RequestBody String jsonData) {
         try {
@@ -254,6 +269,9 @@ public class UserController {
      * Endpoint: /user/delete/all/{userId}
      * Required: JWT access token
      */
+    @Operation(summary = "Delete all user data")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponse(responseCode = "200", description = "Data deleted successfully")
     @DeleteMapping("user/delete/all/{userId}")
     private ResponseEntity<Boolean> deleteUserData(@PathVariable String userId,@RequestHeader("Authorization") String accessToken) {
         System.out.println("I have delete userdata request in id: "+userId);
@@ -279,6 +297,9 @@ public class UserController {
      * Endpoint: /user/delete/comments/{userId}
      * Required: JWT access token
      */
+    @Operation(summary = "Delete all user comments")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponse(responseCode = "200", description = "Comments deleted successfully")
     @DeleteMapping("user/delete/comments/{userId}")
     private ResponseEntity<Boolean> deleteUserComments(@PathVariable String userId, @RequestHeader("Authorization") String accessToken) {
         System.out.println("I have delete user comments request in id: "+userId);
@@ -303,6 +324,8 @@ public class UserController {
 
     @Operation(summary = "Upload a file",
             description = "Uploads a file with content type application/octet-stream")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponse(responseCode = "200", description = "Avatar updated successfully")
     @PutMapping(value = "/change_avatar", consumes = {"application/octet-stream", "image/png", "image/jpeg", "image/gif"})
     public ResponseEntity<String> changeAvatar(
             @RequestHeader("Authorization") String authorizationHeader,
@@ -340,6 +363,9 @@ public class UserController {
     }
 
 
+    @Operation(summary = "Upload avatar via multipart")
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponse(responseCode = "200", description = "Avatar updated successfully")
     @PutMapping(value = "/change_avatar", consumes = {"multipart/form-data"})
     public ResponseEntity<String> changeAvatar(
             @RequestHeader("Authorization") String authorizationHeader,
@@ -374,6 +400,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Change email")
     @PutMapping("/change_email")
     public ResponseEntity<String> changeEmail(@RequestBody EmailChangeRequest request) {
         if (request == null || request.getEmail() == null || request.getLogin() == null) {
@@ -389,6 +416,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Change password")
     @PutMapping("/change_pass")
     public ResponseEntity<String> changePassword(@RequestBody PasswordChangeRequest request) {
         if (request == null || request.getEmail() == null || request.getNewPassword() == null) {
@@ -404,6 +432,7 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Change username")
     @PutMapping("/change_username")
     public ResponseEntity<String> changeUsername(@RequestBody UsernameChangeRequest request) {
         System.out.println("Change username request: " + request);
@@ -421,6 +450,9 @@ public class UserController {
     }
 
 
+
+    @Operation(summary = "Change user premium status")
+    @SecurityRequirement(name = "bearerAuth")
     @PutMapping("/premium/{login}")
     public ResponseEntity<?> changePremium(@PathVariable String login,@RequestHeader("Authorization") String accessToken) {
         System.out.println("I have premium request in id: "+ login);

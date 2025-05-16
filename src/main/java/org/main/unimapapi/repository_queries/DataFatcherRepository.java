@@ -12,21 +12,22 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
-/*
- * Repository to sample data by subject and teacher
+/**
+ * Repository class for fetching subject and teacher data for UI display.
  *
- * Used in:
- * - SubjectController -> /resources/subjects
- * - TeacherController -> /resources/teachers
+ * <p>Used by:</p>
+ * <ul>
+ *     <li>{@code SubjectController} → {@code /resources/subjects}</li>
+ *     <li>{@code TeacherController} → {@code /resources/teachers}</li>
+ * </ul>
  */
 @Repository
 @RequiredArgsConstructor
 public class DataFatcherRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    /*
-     * RowMapper to convert the query result to Subject_dto
-     * Includes subject information and grade percentage (A-Fx)
+    /**
+     * RowMapper for mapping subject records with evaluation statistics (A–Fx).
      */
     private final RowMapper<Subject_dto> subjectsRowMapper = (rs, rowNum) -> {
         Subject_dto subject = new Subject_dto();
@@ -54,12 +55,10 @@ public class DataFatcherRepository {
         return subject;
     };
 
-    /*
-     * Receive all items
+    /**
+     * Fetches all subjects, joined with grade distributions from {@code subject_evaluation}.
      *
-     * Method: used in SubjectController
-     * SQL: select from `subjects` + LEFT JOIN with `subject_evaluation`
-     * Grouping: by subject.code
+     * @return a list of {@link Subject_dto} including grade stats
      */
     public List<Subject_dto> fetchAllSubjects() {
         String sql = """
@@ -84,7 +83,10 @@ public class DataFatcherRepository {
 
 
 
-    // RowMapper for the teacher + the subjects where he/she teaches (teacher_subject_roles)
+    /**
+     * RowMapper for mapping teachers and their subject roles.
+     * <p>Assumes one row per teacher-subject pair. If no roles are found, assigns empty list.</p>
+     */
     private final RowMapper<Teacher_dto> teachersRowMapper = (rs, rowNum) -> {
         Teacher_dto teacher = new Teacher_dto();
         teacher.setId(rs.getString("id"));
@@ -108,6 +110,11 @@ public class DataFatcherRepository {
         return teacher;
     };
 
+    /**
+     * Fetches all teachers along with their subject roles.
+     *
+     * @return a list of {@link Teacher_dto} with assigned subjects and roles
+     */
     public List<Teacher_dto> fetchAllTeachers() {
         String sql = """
                 SELECT tea.id, tea.name, tea.email, tea.phone, tea.office,

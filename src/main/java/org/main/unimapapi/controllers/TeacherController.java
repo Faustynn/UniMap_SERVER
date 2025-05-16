@@ -1,6 +1,8 @@
 package org.main.unimapapi.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.repository_queries.DataFatcherRepository;
 import org.main.unimapapi.utils.JwtToken;
@@ -13,15 +15,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * Controller to get a list of all teachers (teachers)
+/**
+ * REST controller for retrieving all teachers in the system.
  *
- * URL: /api/unimap_pc/resources/teachers
- * Requires JWT Access Token
- * Method: GET
- * Endpoint: /resources/teachers
- * Header: Authorisation: Bearer {access_token}
- * Response: JSON with list of teachers
+ * <p><strong>URL:</strong> <code>/api/unimap_pc/resources/teachers</code><br>
+ * <strong>Method:</strong> GET<br>
+ * <strong>Authorization:</strong> JWT Access Token required in the header</p>
  */
 @AllArgsConstructor
 @RestController
@@ -30,6 +29,19 @@ public class TeacherController {
     JwtToken jwtToken;
     DataFatcherRepository dataFatcherRepository;
 
+    /**
+     * Retrieves a list of all teachers.
+     *
+     * @param authorizationHeader the "Authorization" header containing a valid Bearer token
+     * @return a list of teachers or an appropriate error response
+     */
+    @Operation(
+            summary = "Get all teachers",
+            description = "Returns a list of all teachers in the system. Requires a valid JWT access token."
+    )
+    @ApiResponse(responseCode = "200", description = "Teachers retrieved successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or missing token")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping("resources/teachers")
     public ResponseEntity<?> getAllTeachers(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try {

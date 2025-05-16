@@ -4,41 +4,54 @@ import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * Service for sending push notifications to mobile devices via Firebase Cloud Messaging (FCM).
+ *
+ * <p>Supports:</p>
+ * <ul>
+ *     <li>Single-device notification (platform-specific)</li>
+ *     <li>Multicast messaging (batch sending to up to 500 devices)</li>
+ *     <li>Asynchronous messaging</li>
+ * </ul>
+ */
 @Service
 @RequiredArgsConstructor
 public class FirebaseNotificationService {
+
     private final FirebaseMessaging firebaseMessaging;
 
-
+    /**
+     * Sends a news notification to a specific device with platform-specific configuration.
+     *
+     * @param fcmToken device FCM token
+     * @param newsId   news identifier
+     * @param title    notification title
+     * @param content  notification body
+     * @param platform target platform ("android" or "ios")
+     * @return Firebase message ID or {@code null} if failed
+     */
     public String sendNewsNotification(String fcmToken, String newsId, String title, String content, String platform) {
         try {
-            // Create notification payload - platform specific configurations
             Notification notification = Notification.builder()
                     .setTitle(title)
                     .setBody(content)
                     .build();
 
-            // Add news ID as data
-            Map<String, String> data = new HashMap<>();
-            data.put("newsId", newsId);
-            data.put("type", "NEWS");
+            Map<String, String> data = Map.of(
+                    "newsId", newsId,
+                    "type", "NEWS"
+            );
 
-            // Build base message
             Message.Builder messageBuilder = Message.builder()
                     .setToken(fcmToken)
                     .setNotification(notification)
                     .putAllData(data);
 
-            // Add platform-specific configurations
             applyPlatformSpecificConfig(messageBuilder, platform);
 
-            // Send message
             String response = firebaseMessaging.send(messageBuilder.build());
             System.out.println("Successfully sent news notification to " + platform + " device: " + response);
             return response;
@@ -48,30 +61,26 @@ public class FirebaseNotificationService {
         }
     }
 
-    public int sendNewsNotificationToMultipleDevices(
-            List<String> fcmTokens,
-            String newsId,
-            String title,
-            String content) {
-
-        if (fcmTokens == null || fcmTokens.isEmpty()) {
-            return 0;
-        }
+    /**
+     * Sends a news notification to multiple devices in batch (splits if >500 tokens).
+     *
+     * @param fcmTokens list of device tokens
+     * @param newsId    news identifier
+     * @param title     title of the notification
+     * @param content   message body
+     * @return number of successfully sent notifications
+     */
+    public int sendNewsNotificationToMultipleDevices(List<String> fcmTokens, String newsId, String title, String content) {
+        if (fcmTokens == null || fcmTokens.isEmpty()) return 0;
 
         try {
-            // For smaller batches (up to 500), use multicast
             if (fcmTokens.size() <= 500) {
                 return sendMulticastNotification(fcmTokens, newsId, title, content);
-            }
-            // For larger batches, split into multiple requests
-            else {
+            } else {
                 int totalSent = 0;
-                List<List<String>> tokenBatches = splitIntoBatches(fcmTokens, 500);
-
-                for (List<String> batch : tokenBatches) {
+                for (List<String> batch : splitIntoBatches(fcmTokens, 500)) {
                     totalSent += sendMulticastNotification(batch, newsId, title, content);
                 }
-
                 return totalSent;
             }
         } catch (Exception e) {
@@ -80,49 +89,43 @@ public class FirebaseNotificationService {
         }
     }
 
+    /**
+     * Sends a multicast news notification to a batch of devices (max 500).
+     */
     private int sendMulticastNotification(List<String> tokens, String newsId, String title, String content)
             throws FirebaseMessagingException {
-        // Create notification
+
         Notification notification = Notification.builder()
                 .setTitle(title)
                 .setBody(content)
                 .build();
 
-        // Data payload
-        Map<String, String> data = new HashMap<>();
-        data.put("newsId", newsId);
-        data.put("type", "NEWS");
+        Map<String, String> data = Map.of(
+                "newsId", newsId,
+                "type", "NEWS"
+        );
 
-        // Create multicast message
         MulticastMessage message = MulticastMessage.builder()
                 .setNotification(notification)
                 .putAllData(data)
                 .addAllTokens(tokens)
                 .build();
 
-        // Send the message
         BatchResponse response = firebaseMessaging.sendMulticast(message);
 
-        System.out.println("Multicast completed: " + response.getSuccessCount() +
-                " messages were sent successfully, " +
+        System.out.println("Multicast completed: " +
+                response.getSuccessCount() + " sent, " +
                 response.getFailureCount() + " failed");
 
         return response.getSuccessCount();
     }
 
-    private <T> List<List<T>> splitIntoBatches(List<T> list, int batchSize) {
-        List<List<T>> batches = new ArrayList<>();
-
-        for (int i = 0; i < list.size(); i += batchSize) {
-            int end = Math.min(i + batchSize, list.size());
-            batches.add(list.subList(i, end));
-        }
-
-        return batches;
-    }
-
-
-
+    /**
+     * Sends an arbitrary FCM message asynchronously and waits for result.
+     *
+     * @param message the Firebase {@link Message}
+     * @return {@code true} if sent successfully, otherwise {@code false}
+     */
     public boolean sendAsync(Message message) {
         try {
             firebaseMessaging.sendAsync(message).get();
@@ -133,7 +136,12 @@ public class FirebaseNotificationService {
         }
     }
 
-
+    /**
+     * Adds platform-specific settings to the given message builder.
+     *
+     * @param messageBuilder the message builder
+     * @param platform       "ios" or "android"
+     */
     private void applyPlatformSpecificConfig(Message.Builder messageBuilder, String platform) {
         if ("ios".equalsIgnoreCase(platform)) {
             ApnsConfig apnsConfig = ApnsConfig.builder()
@@ -143,7 +151,6 @@ public class FirebaseNotificationService {
                             .setMutableContent(true)
                             .build())
                     .build();
-
             messageBuilder.setApnsConfig(apnsConfig);
         } else if ("android".equalsIgnoreCase(platform)) {
             AndroidConfig androidConfig = AndroidConfig.builder()
@@ -153,8 +160,19 @@ public class FirebaseNotificationService {
                             .setClickAction("FLUTTER_NOTIFICATION_CLICK")
                             .build())
                     .build();
-
             messageBuilder.setAndroidConfig(androidConfig);
         }
+    }
+
+    /**
+     * Utility to split a list into sublists of fixed size.
+     */
+    private <T> List<List<T>> splitIntoBatches(List<T> list, int batchSize) {
+        List<List<T>> batches = new ArrayList<>();
+        for (int i = 0; i < list.size(); i += batchSize) {
+            int end = Math.min(i + batchSize, list.size());
+            batches.add(list.subList(i, end));
+        }
+        return batches;
     }
 }

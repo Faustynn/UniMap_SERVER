@@ -8,15 +8,30 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Random;
 
+/**
+ * Service responsible for generating, storing, and validating confirmation codes.
+ *
+ * <p>Used for user verification processes such as email confirmation and password reset.</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class ConfirmationCodeService {
     private final ConfirmationCodeRepository confirmationCodeRepository;
 
+    /**
+     * Saves a confirmation code to the database.
+     *
+     * @param confirmationCode the confirmation code entity to store
+     */
     public void save(ConfirmationCode confirmationCode) {
         confirmationCodeRepository.save(confirmationCode);
     }
 
+    /**
+     * Generates a random 6-digit numeric code as a {@link String}.
+     *
+     * @return six-digit confirmation code
+     */
     public static String generateRandomCode() {
         Random random = new Random();
         StringBuilder code = new StringBuilder();
@@ -26,7 +41,14 @@ public class ConfirmationCodeService {
         return code.toString();
     }
 
-
+    /**
+     * Validates whether the given code matches the stored one for the user.
+     * If valid, the code is deleted immediately (one-time use).
+     *
+     * @param userId the ID of the user
+     * @param code   the code to validate
+     * @return {@code true} if the code is valid, otherwise {@code false}
+     */
     public boolean validateConfirmationCode(Long userId, String code) {
         try {
             ServerLogger.logServer(ServerLogger.Level.INFO, "VALIDATE CONFIRMATION CODE "+userId+" "+code);

@@ -8,18 +8,21 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
-/*
- * Repository for working with confirmation codes
+/**
+ * Repository for managing confirmation codes in the database.
  *
- * Used for email confirmation and password recovery
- * Table: confirm_codes
+ * <p>Used for operations related to email verification and password recovery via time-limited codes.</p>
+ *
+ * <p><b>Database table:</b> {@code confirm_codes}</p>
  */
 @Repository
 @RequiredArgsConstructor
 public class ConfirmationCodeRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    // RowMapper to convert the result of the SQL query into a ConfirmationCode object
+    /**
+     * Maps result set rows to {@link ConfirmationCode} objects.
+     */
     private final RowMapper<ConfirmationCode> confirmationCodeRowMapper = (rs, rowNum) -> {
         ConfirmationCode code = new ConfirmationCode();
         code.setUserId(rs.getLong("id_code"));
@@ -28,7 +31,13 @@ public class ConfirmationCodeRepository {
         return code;
     };
 
-    // Checks for a confirmation code by userId and the code itself
+    /**
+     * Checks if a given confirmation code exists for a user.
+     *
+     * @param userId the user ID
+     * @param code   the confirmation code string
+     * @return {@code true} if a matching code is found, otherwise {@code false}
+     */
     public boolean find(Long userId, String code) {
         String sql = "SELECT * FROM confirm_codes WHERE id_code = ? and code = ?";
         List<ConfirmationCode> results = jdbcTemplate.query(sql, confirmationCodeRowMapper, userId, code);
@@ -36,7 +45,12 @@ public class ConfirmationCodeRepository {
         return !results.isEmpty();
     }
 
-    // Saves the new confirmation code to the database
+    /**
+     * Stores a new confirmation code in the database.
+     *
+     * @param confirmationCode the code to save
+     * @throws IllegalArgumentException if the code is {@code null}
+     */
     public void save(ConfirmationCode confirmationCode) {
         // The only way injection may appear here is
         // When the code is null, jdbc may not screen it properly
@@ -49,7 +63,12 @@ public class ConfirmationCodeRepository {
         jdbcTemplate.update(sql, confirmationCode.getUserId(), confirmationCode.getCode(), confirmationCode.getExpirationTime());
     }
 
-    // Removes the confirmation code by userId and code
+    /**
+     * Deletes a confirmation code from the database by user ID and code value.
+     *
+     * @param userId the user ID
+     * @param code   the code to delete
+     */
     public void deleteByUserId(Long userId, String code) {
         String sql = "DELETE FROM confirm_codes WHERE code = ? and id_code = ?";
         jdbcTemplate.update(sql, code, userId);

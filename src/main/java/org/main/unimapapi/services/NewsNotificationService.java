@@ -10,6 +10,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
+/**
+ * Service responsible for sending news notifications to devices via Firebase.
+ *
+ * <p>Uses {@link DeviceService} to fetch push tokens and {@link FirebaseNotificationService}
+ * to send individual or bulk FCM messages.</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class NewsNotificationService {
@@ -20,6 +26,12 @@ public class NewsNotificationService {
 
 
 
+    /**
+     * Sends a news notification to all active devices asynchronously.
+     *
+     * @param news the news object to send
+     * @return a {@link CompletableFuture} with the number of successfully sent notifications
+     */
     @Async
     public CompletableFuture<Integer> sendNewsNotificationToAllDevices(News_dto news) {
         try {
@@ -48,7 +60,13 @@ public class NewsNotificationService {
         }
     }
 
-
+    /**
+     * Sends a news notification to a specific device (synchronously).
+     *
+     * @param news     the news content to send
+     * @param deviceId ID of the target device
+     * @return {@code true} if the notification was sent successfully, otherwise {@code false}
+     */
     public boolean sendNewsNotificationToDevice(News_dto news, String deviceId) {
         try {
             Device device = deviceService.findByDeviceId(deviceId);

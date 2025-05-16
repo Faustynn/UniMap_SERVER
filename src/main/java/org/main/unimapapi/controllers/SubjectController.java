@@ -1,6 +1,8 @@
 package org.main.unimapapi.controllers;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.repository_queries.DataFatcherRepository;
 import org.main.unimapapi.utils.JwtToken;
@@ -13,15 +15,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
-/*
- * Controller to obtain all available items (subjects)
+/**
+ * REST controller for retrieving all available subjects.
  *
- * URL: /api/unimap_pc/resources/subjects
- * Requires JWT Access Token
- * Method: GET
- * Endpoint: /resources/subjects
- * Header: Authorisation: Bearer {access_token}
- * Response: JSON with an array of all subjects
+ * <p><strong>URL:</strong> <code>/api/unimap_pc/resources/subjects</code><br>
+ * <strong>Method:</strong> GET<br>
+ * <strong>Authorization:</strong> JWT Access Token in header</p>
+ *
+ * <p>Returns a JSON array of subjects available in the system.</p>
  */
 @RestController
 @AllArgsConstructor
@@ -30,6 +31,20 @@ public class SubjectController {
     JwtToken jwtToken;
     DataFatcherRepository dataFatcherRepository;
 
+
+    /**
+     * Retrieves a list of all available subjects.
+     *
+     * @param authorizationHeader the "Authorization" HTTP header containing the Bearer token
+     * @return a JSON object containing the subject list or an error response
+     */
+    @Operation(
+            summary = "Get all subjects",
+            description = "Returns a list of all subjects in the system. Requires a valid JWT access token."
+    )
+    @ApiResponse(responseCode = "200", description = "Subjects retrieved successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized - invalid or missing token")
+    @ApiResponse(responseCode = "500", description = "Internal server error")
     @GetMapping("resources/subjects")
     public ResponseEntity<?> getAllSubjects(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
         try {

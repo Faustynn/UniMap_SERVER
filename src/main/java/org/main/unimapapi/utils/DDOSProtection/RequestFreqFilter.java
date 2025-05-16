@@ -7,12 +7,23 @@ import java.io.IOException;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-// Make sure this component to become a priority due to the importance of ddos
-// Checking before even the http-routing starts
+
+/**
+ * Servlet filter that provides basic DDoS protection by limiting the frequency
+ * of requests per IP address.
+ *
+ * <p>If a client exceeds {@value RATE_LIMIT} requests per second, the IP is blocked
+ * for {@value BLOCK_TIME} milliseconds and receives HTTP 429 (Too Many Requests).</p>
+ *
+ * <p>This filter is prioritized to be applied early in the request chain via {@code @Order(1)}.</p>
+ */
 @Component
 @Order(1)
 public class RequestFreqFilter implements Filter {
 
+    /**
+     * Initializes the clearing scheduler to remove expired blocked IPs every minute.
+     */
     @Override
     public void init(FilterConfig filterConfig) {
         // Every n amount of seconds, the data should be wiped
@@ -29,28 +40,49 @@ public class RequestFreqFilter implements Filter {
         }, 1, 1, TimeUnit.MINUTES);
     }
 
-    // Create a data struct to store IP data
+    /**
+     * Map for counting requests from IP addresses.
+     */
     private final ConcurrentHashMap<String, AtomicLong> reqCount
                                         = new ConcurrentHashMap<>();
 
-    // A map for blocked ip addresses
+    /**
+     * Map for blocked IP addresses with timestamp of block.
+     */
     private final ConcurrentHashMap<String, Long> blockedIPs = new ConcurrentHashMap<>();
 
-    // Each second there must be equal or fewer requests from this ip address
+    /**
+     * Max allowed requests per second from one IP.
+     */
     private static final byte RATE_LIMIT = 6;
 
-    // Blocking time, be aware it is in milliseconds, so * 1000 is mandatory for
-    // this app
+    /**
+     * Time in milliseconds an IP will be blocked after exceeding the limit.
+     */
     private static final int  BLOCK_TIME = 30 * 1000;
 
-    // Scheduler for clearing the IP history to make sure the server won't be
-    // way too much memory-overloaded
+    /**
+     * Scheduled task executor that clears expired blocked IP entries every minute.
+     */
     private final ScheduledExecutorService clearingScheduler =
                                            Executors.newScheduledThreadPool(1);
 
 
-    // Filtering should return the 429 http error in case the user is way too
-    // aggressive in the request sending
+    /**
+     * Main filtering logic that checks IP request frequency.
+     * <ul>
+     *   <li>Returns 429 if IP is temporarily blocked.</li>
+     *   <li>Increments request count for IP.</li>
+     *   <li>Blocks and returns 429 if limit exceeded.</li>
+     *   <li>Passes to next filter if within limit.</li>
+     * </ul>
+     *
+     * @param req   incoming servlet request
+     * @param res   servlet response
+     * @param chain filter chain
+     * @throws IOException      if response writing fails
+     * @throws ServletException if the next filter fails
+     */
     @Override
     public void doFilter(ServletRequest req, ServletResponse res,
                          FilterChain chain) throws IOException, ServletException {
@@ -96,6 +128,9 @@ public class RequestFreqFilter implements Filter {
         chain.doFilter(req, res);
     }
 
+    /**
+     * Shuts down the IP cleanup scheduler.
+     */
     @Override
     public void destroy() {
         // The scheduler should be destroyed in case of instance death

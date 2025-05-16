@@ -1,0 +1,11 @@
+org.main.unimapapi
+org.main.unimapapi.configs
+org.main.unimapapi.controllers
+org.main.unimapapi.dtos
+org.main.unimapapi.entities
+org.main.unimapapi.models
+org.main.unimapapi.repository_queries
+org.main.unimapapi.services
+org.main.unimapapi.sse
+org.main.unimapapi.utils
+org.main.unimapapi.utils.DDOSProtection

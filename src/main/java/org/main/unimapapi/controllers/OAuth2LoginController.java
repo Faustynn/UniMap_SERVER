@@ -3,6 +3,8 @@ package org.main.unimapapi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.User_dto;
 import org.main.unimapapi.entities.User;
@@ -21,6 +23,12 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * REST controller for handling OAuth2 login via Google and Facebook.
+ *
+ * <p><strong>Base URL:</strong> <code>/api/unimap_pc/oauth2/</code></p>
+ * <p>This endpoint handles exchanging an OAuth2 authorization code for a token and user information.</p>
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/api/unimap_pc/oauth2/")
@@ -31,6 +39,20 @@ public class OAuth2LoginController {
     private final RestTemplate restTemplate = new RestTemplate();
 
 
+    /**
+     * Handles login via OAuth2 provider (Google or Facebook).
+     *
+     * @param code     the authorization code from the OAuth2 provider
+     * @param provider the name of the provider ("google" or "facebook")
+     * @return JSON response with user object and JWT access token, or error response
+     */
+    @Operation(
+            summary = "OAuth2 login",
+            description = "Handles login via Google or Facebook. Exchanges the authorization code for user info and tokens."
+    )
+    @ApiResponse(responseCode = "200", description = "Successfully authenticated and registered/logged in user")
+    @ApiResponse(responseCode = "400", description = "Unsupported provider or missing data")
+    @ApiResponse(responseCode = "500", description = "Authentication failed due to internal error")
     @PostMapping("login")
     public ResponseEntity<?> oauth2Login(@RequestParam("code") String code,
                                          @RequestParam("provider") String provider) {
@@ -52,6 +74,12 @@ public class OAuth2LoginController {
     }
 
 
+    /**
+     * Handles OAuth2 authentication flow with Google.
+     *
+     * @param code the Google OAuth2 authorization code
+     * @return a response with access token and user data
+     */
     private ResponseEntity<?> handleGoogleAuthentication(String code) throws JsonProcessingException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -155,6 +183,12 @@ public class OAuth2LoginController {
         }
     }
 
+    /**
+     * Handles OAuth2 authentication flow with Facebook.
+     *
+     * @param code the Facebook OAuth2 authorization code
+     * @return a response with access token and user data
+     */
     private ResponseEntity<?> handleFacebookAuthentication(String code) throws JsonProcessingException {
         // Exchange code for token
         String tokenUrl = AppConfig.getFACEBOOK_TOKEN_URL() +
@@ -253,6 +287,12 @@ public class OAuth2LoginController {
         }
     }
 
+    /**
+     * Generates a unique login name based on the provided base name.
+     *
+     * @param name the user's base name (from OAuth2)
+     * @return a unique login name
+     */
     private String generateUniqueLogin(String name) {
         String baseName = name.toLowerCase().replaceAll("\\s+", "");
         String login = baseName;

@@ -1,5 +1,7 @@
 package org.main.unimapapi.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.AllArgsConstructor;
 import org.main.unimapapi.services.TokenService;
 import org.main.unimapapi.utils.ServerLogger;
@@ -12,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/*
- * Controller to handle JWT Access Token refresh by Refresh Token
+
+/**
+ * REST controller responsible for refreshing JWT access tokens using refresh tokens.
  *
- * URL prefix: /api/unimap_pc
- * Method: POST
- * Endpoint: /refresh
- * Input: { "refreshToken": "." }
- * Output: { "accessToken": "..." } or 401 if the token is invalid
+ * <p><strong>Base URL:</strong> <code>/api/unimap_pc/refresh</code><br>
+ * <strong>Method:</strong> POST</p>
+ *
+ * <p>Clients provide a valid refresh token in the request body to receive a new access token.</p>
  */
 @RestController
 @AllArgsConstructor
@@ -27,6 +29,18 @@ import java.util.Map;
 public class JWTController {
     private final TokenService tokenService;
 
+    /**
+     * Refreshes an access token using a provided refresh token.
+     *
+     * @param request a map containing the "refreshToken" key
+     * @return a map with the new access token, or 401 if the token is invalid
+     */
+    @Operation(
+            summary = "Refresh JWT access token",
+            description = "Returns a new access token if the provided refresh token is valid."
+    )
+    @ApiResponse(responseCode = "200", description = "Access token generated successfully")
+    @ApiResponse(responseCode = "401", description = "Invalid or missing refresh token")
     @PostMapping("refresh")
     public ResponseEntity<?> refreshToken(@RequestBody Map<String, String> request) {
 

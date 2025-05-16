@@ -12,27 +12,50 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Repository for retrieving news records from the database.
+ *
+ * <p>Handles operations like listing all news, filtering by creation date, and mapping SQL results into {@link News_dto} objects.</p>
+ */
 @Repository
 public class NewsRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Constructs a {@link NewsRepository} using the provided {@link JdbcTemplate}.
+     *
+     * @param jdbcTemplate the Spring JDBC template
+     */
     @Autowired
     public NewsRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * Finds all news items created after the specified timestamp.
+     *
+     * @param date the cutoff creation date
+     * @return list of {@link News_dto} objects created after the given date
+     */
     public List<News_dto> findByDateOfCreationAfter(LocalDateTime date) {
         String sql = "SELECT * FROM news WHERE date_of_creation > ?";
         return jdbcTemplate.query(sql, new NewsRowMapper(), date);
     }
 
+    /**
+     * Retrieves all news items from the database.
+     *
+     * @return list of all {@link News_dto}
+     */
     public List<News_dto> findAllNews() {
         String sql = "SELECT * FROM news";
         return jdbcTemplate.query(sql, new NewsRowMapper());
     }
 
-
+    /**
+     * Maps SQL result rows to {@link News_dto} instances.
+     */
     private static class NewsRowMapper implements RowMapper<News_dto> {
         @Override
         public News_dto mapRow(ResultSet rs, int rowNum) throws SQLException {

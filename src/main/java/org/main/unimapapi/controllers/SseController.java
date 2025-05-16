@@ -1,5 +1,7 @@
 package org.main.unimapapi.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 /**
- * Controller for SSE connections
+ * REST controller that manages Server-Sent Events (SSE) connections
+ * used for pushing real-time news updates to connected clients.
  *
- * URL prefix: /api/unimap_pc/sse
- * Method: GET
- * Endpoint: /subscribe
- * Output: Server-Sent Events stream for news updates
+ * <p><strong>Base URL:</strong> <code>/api/unimap_pc/sse</code></p>
  */
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +26,16 @@ public class SseController {
 
     private final SseServer sseServer;
 
+    /**
+     * Establishes a persistent SSE connection for the client to receive real-time updates.
+     *
+     * <p><strong>Endpoint:</strong> <code>/subscribe</code><br>
+     * <strong>Method:</strong> GET<br>
+     * <strong>Response:</strong> Event stream (Content-Type: text/event-stream)</p>
+     *
+     * @param request  the incoming client request
+     * @param response the server response that will be upgraded to SSE
+     */
     @GetMapping("/subscribe")
     public void subscribe(HttpServletRequest request, HttpServletResponse response) {
         request.setAttribute("org.apache.catalina.ASYNC_SUPPORTED", true);
@@ -52,6 +62,13 @@ public class SseController {
         }
     }
 
+    /**
+     * Simple status check endpoint for monitoring the SSE service.
+     *
+     * @return a JSON string with the service status and timestamp
+     */
+    @Operation(summary = "Check SSE server status", description = "Returns a JSON status with server timestamp.")
+    @ApiResponse(responseCode = "200", description = "SSE server is running")
     @GetMapping("/status")
     public String status() {
         return "{\"status\":\"running\",\"timestamp\":\"" + System.currentTimeMillis() + "\"}";

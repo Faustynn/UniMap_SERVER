@@ -9,19 +9,20 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
-/*
- * Repository for working with user table (`user_data`)
+/**
+ * Repository for interacting with the {@code user_data} table.
  *
- * Used in:
- * - AuthService / RegistrationService / UserService
- * - UserController → registration, login, data change, deletion
+ * <p>Used for registration, login, updates, and deletion of user records.</p>
+ * <p>Also handles cascaded deletion of related entities like comments and confirmation codes.</p>
  */
 @Repository
 @RequiredArgsConstructor
 public class UserRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    // Converts the SQL query result string into a User object
+    /**
+     * Maps SQL result rows to {@link User} entities.
+     */
     private final RowMapper<User> userRowMapper = (rs, rowNum) -> {
         User user = new User();
         user.setId(rs.getLong("id"));
@@ -36,12 +37,18 @@ public class UserRepository {
         return user;
     };
 
+    /**
+     * Finds a user by ID.
+     */
     public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM user_data WHERE id = ?";
         List<User> users = jdbcTemplate.query(sql, userRowMapper, id);
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
+    /**
+     * Finds a user by email.
+     */
     public Optional<User> findByEmail(String email) {
         if (email == null) {
             throw new IllegalArgumentException("EMAIL CAN NOT BE NULL");
@@ -57,6 +64,9 @@ public class UserRepository {
         }
     }
 
+    /**
+     * Finds a user by login (username used for auth).
+     */
     public Optional<User> findByLogin(String login) {
         if (login == null) {
             throw new IllegalArgumentException("LOGIN CAN NOT BE NULL");
@@ -72,6 +82,9 @@ public class UserRepository {
         }
     }
 
+    /**
+     * Finds a user by display name.
+     */
     public Optional<User> findByUsername(String username) {
         if (username == null) {
             throw new IllegalArgumentException("USERNAME CAN NOT BE NULL");
@@ -82,11 +95,20 @@ public class UserRepository {
         return users.isEmpty() ? Optional.empty() : Optional.of(users.get(0));
     }
 
+    /**
+     * Retrieves all users.
+     */
     public List<User> findAll() {
         String sql = "SELECT * FROM user_data";
         return jdbcTemplate.query(sql, userRowMapper);
     }
 
+    /**
+     * Saves a new user to the database if the login is not already used.
+     *
+     * @param user the user entity to save
+     * @return {@code true} if saved successfully, {@code false} if login already exists
+     */
     public boolean save(User user) {
         Optional<User> existingUser = findByLogin(user.getLogin());
         if (existingUser.isPresent()) {
@@ -102,6 +124,11 @@ public class UserRepository {
         return true;
     }
 
+    /**
+     * Updates all fields of the user (must include password).
+     *
+     * @throws IllegalArgumentException if password is null or empty
+     */
     public void update(User user) {
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
@@ -110,17 +137,23 @@ public class UserRepository {
         jdbcTemplate.update(sql, user.getLogin(), user.getEmail(), user.getPassword(), user.getUsername(), user.isAdmin(), user.isPremium(), user.getAvatar(), user.getAvatarFileName(), user.getId());
     }
 
-    // Deleting a user by ID
+    /**
+     * Deletes a user by ID.
+     */
     public void deleteById(Long id) {
         String sql = "DELETE FROM user_data WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
 
-    /*
-     * Deletes EVERYTHING related to the user:
-     * - comments on subjects and teachers
-     * - confirmation codes
-     * - the account itself
+    /**
+     * Deletes all user-related data:
+     * <ul>
+     *   <li>comments on subjects and teachers</li>
+     *   <li>confirmation codes</li>
+     *   <li>user record itself</li>
+     * </ul>
+     *
+     * @param id user ID
      */
     public void deleteAllUserInfo(Long id) {
         String deleteCommentsSubjectsSql = "DELETE FROM comments_subjects WHERE user_id = ?";
@@ -134,7 +167,11 @@ public class UserRepository {
         jdbcTemplate.update(deleteUserSql, id);
     }
 
-    // Deletes only the user's comments
+    /**
+     * Deletes only the comments made by the user.
+     *
+     * @param id user ID
+     */
     public void deleteAllUserComments(Long id) {
         String deleteCommentsSubjectsSql = "DELETE FROM comments_subjects WHERE user_id = ?";
         String deleteCommentsTeachersSql = "DELETE FROM comments_teachers WHERE user_id = ?";

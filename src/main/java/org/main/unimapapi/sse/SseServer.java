@@ -17,6 +17,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * SSE (Server-Sent Events) server component that streams news updates to connected clients.
+ *
+ * <p>Manages a list of long-lived HTTP connections using text/event-stream, and
+ * broadcasts news updates periodically. Also sends keep-alive heartbeats every 15 seconds.</p>
+ */
 @Component
 public class SseServer {
     private final List<SseClient> clients = new CopyOnWriteArrayList<>();
@@ -27,7 +33,9 @@ public class SseServer {
     private final AtomicInteger eventId = new AtomicInteger(1);
 
 
-    // Client base class
+    /**
+     * Inner class representing a connected SSE client.
+     */
     private static class SseClient {
         final HttpServletResponse response;
         Thread heartbeatThread;
@@ -46,6 +54,9 @@ public class SseServer {
         }
     }
 
+    /**
+     * Constructs the SSE server and starts the background broadcasting task.
+     */
     @Autowired
     public SseServer(NewsRepository newsRepository) {
         this.newsRepository = newsRepository;
@@ -55,6 +66,14 @@ public class SseServer {
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdown));
     }
 
+    /**
+     * Handles a new incoming client connection.
+     * Registers the client, starts a heartbeat thread, and sends initial data.
+     *
+     * @param request  the incoming HTTP request
+     * @param response the HTTP response to write the SSE stream to
+     * @throws IOException if connection cannot be initialized
+     */
     public void handleClientConnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/event-stream"); // headers
         response.setCharacterEncoding("UTF-8");
@@ -114,6 +133,12 @@ public class SseServer {
     }
 
 
+    /**
+     * Sends the current full news list to a specific client.
+     *
+     * @param client the target client
+     * @return {@code true} if sent successfully, {@code false} if failed
+     */
     private boolean sendAllNewsToClient(SseClient client) {
         try {
             if (!client.connected) {
@@ -139,6 +164,11 @@ public class SseServer {
         }
     }
 
+    /**
+     * Broadcasts a new news list to all connected clients if updated.
+     *
+     * @param newsList the updated list of news
+     */
     private void broadcastNewsList(List<News_dto> newsList) {
         try {
             int currentId = eventId.incrementAndGet();
@@ -168,6 +198,9 @@ public class SseServer {
         }
     }
 
+    /**
+     * Starts periodic polling and broadcasting news every 10 seconds.
+     */
     private void startBroadcasting() {
         scheduler.scheduleAtFixedRate(() -> {
             try {
@@ -184,6 +217,9 @@ public class SseServer {
         }, 0, 10, TimeUnit.SECONDS);
     }
 
+    /**
+     * Clean shutdown hook — terminates threads and clears client list.
+     */
     private void shutdown() {
         if (scheduler != null && !scheduler.isShutdown()) {
             scheduler.shutdown();
