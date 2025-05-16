@@ -24,6 +24,9 @@ import java.util.Properties;
 @Data
 @UtilityClass
 public class AppConfig {
+    // Parther file paths
+    @Getter private final String PARTHER_FILE = "src/main/resources/parser.py";
+
     @Getter
     private static final String sender = "unimapofficial@gmail.com";
 

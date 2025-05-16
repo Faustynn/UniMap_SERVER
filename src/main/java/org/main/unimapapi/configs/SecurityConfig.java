@@ -35,7 +35,6 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .requestMatchers(
-                                        // Для мобильного приложения
                                         "/api/unimap_pc/authenticate",
                                         "/api/unimap_pc/authenticate/**",
 
