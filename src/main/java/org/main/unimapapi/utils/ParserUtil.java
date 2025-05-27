@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 @UtilityClass
 public class ParserUtil {
     private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-    ServerLogger Logger = new ServerLogger();
 
     // for debug start after 5 seconds once
     public void startParsingScheduleDebug() {
@@ -49,6 +48,7 @@ public class ParserUtil {
         ServerLogger.logServer(ServerLogger.Level.INFO,
                 String.format("Scheduled parsing started. Next run: %s", nextRun));
     }
+
 
     private void runPythonParserTask() {
         try {

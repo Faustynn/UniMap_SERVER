@@ -21,7 +21,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class UniMapApiApplication {
 
     public static void main(String[] args) {
-        ParserUtil.startParsingSchedule();
+     //   ParserUtil.startParsingSchedule();
+        ParserUtil.startParsingScheduleDebug();
 
         SpringApplication.run(UniMapApiApplication.class,args);
     }
