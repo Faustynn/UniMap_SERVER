@@ -14,10 +14,7 @@ import org.main.unimapapi.dtos.UsernameChangeRequest;
 import org.main.unimapapi.entities.ConfirmationCode;
 import org.main.unimapapi.entities.User;
 import org.main.unimapapi.services.*;
-import org.main.unimapapi.utils.EmailSender;
-import org.main.unimapapi.utils.Hashing;
-import org.main.unimapapi.utils.JwtToken;
-import org.main.unimapapi.utils.ServerLogger;
+import org.main.unimapapi.utils.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -346,6 +343,13 @@ public class UserController {
 
             String login = jwtToken.extractUsernameFromAccessToken(token);
 
+            PFA_Recognition pfaRecognition = new PFA_Recognition();
+            boolean isValidAvatar = pfaRecognition.send_to_neuron_image(avatarData, decodedFileName);
+
+            if (!isValidAvatar) {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Avatar validation failed.");
+            }
+
             boolean avatarUpdated = userService.updateAvatarData(login, avatarData, decodedFileName);
         //    System.out.println("Avatar DATAA: " + Arrays.toString(avatarData));
 
@@ -382,6 +386,13 @@ public class UserController {
             }
 
             String login = jwtToken.extractUsernameFromAccessToken(token);
+
+            PFA_Recognition pfaRecognition = new PFA_Recognition();
+            boolean isValidAvatar = pfaRecognition.send_to_neuron_multipart(file.getBytes());
+
+            if (!isValidAvatar) {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Avatar validation failed.");
+            }
 
             boolean avatarUpdated = userService.updateAvatarData(
                     login,

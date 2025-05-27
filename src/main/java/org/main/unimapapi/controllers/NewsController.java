@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.main.unimapapi.dtos.News_dto;
-import org.main.unimapapi.services.NewsNotificationService;
 import org.main.unimapapi.services.NewsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class NewsController {
     private final NewsService newsService;
-    private final NewsNotificationService newsNotificationService;
 
     /**
      * Retrieves all news articles.
@@ -80,11 +78,6 @@ public class NewsController {
     @PostMapping
     public ResponseEntity<News_dto> createNews(@RequestBody News_dto news) {
         News_dto savedNews = newsService.saveNews(news);
-
-        // Fire-and-forget notification
-        CompletableFuture.runAsync(() -> {
-            newsNotificationService.sendNewsNotificationToAllDevices(savedNews);
-        });
 
         return ResponseEntity.ok(savedNews);
     }

@@ -1,6 +1,7 @@
 package org.main.unimapapi;
 
 // Import the necessary Spring Boot classes
+import org.main.unimapapi.utils.ParserUtil;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -30,6 +31,9 @@ public class UniMapApiApplication {
      * @param args application arguments passed at runtime (optional)
      */
     public static void main(String[] args) {
+     //   ParserUtil.startParsingSchedule();
+        ParserUtil.startParsingScheduleDebug();
+
         SpringApplication.run(UniMapApiApplication.class,args);
     }
 }

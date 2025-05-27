@@ -35,7 +35,6 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .requestMatchers(
-                                        // Для мобильного приложения
                                         "/api/unimap_pc/authenticate",
                                         "/api/unimap_pc/authenticate/**",
 
@@ -51,6 +50,8 @@ public class SecurityConfig {
                                         "/v3/api-docs/**",
                                         "/swagger-ui/**",
                                         "/swagger-ui.html",
+
+                                        "/api/unimap/neuron/validate",
 
                                         "/",
                                         "/oauth2/**",
@@ -81,12 +82,12 @@ public class SecurityConfig {
                                         "/api/unimap_pc/user/delete/comments/**",
                                         "/api/unimap_pc/user/delete/all/**",
 
-                                        "/api/notifications/**",
-                                        "/api/notifications/register-device",
-                                        "/api/notifications/test",
-                                        "/api/notifications/send-news",
-                                        "/api/notifications/device-count",
-                                        "/api/notifications/unregister-device/{deviceId}",
+                                        "/api/unimap_pc/notifications/**",
+                                        "/api/unimap_pc/notifications/register-device",
+                                        "/api/unimap_pc/notifications/test",
+                                        "/api/unimap_pc/notifications/send-news",
+                                        "/api/unimap_pc/notifications/device-count",
+                                        "/api/unimap_pc/notifications/unregister-device/{deviceId}",
 
                                         // Страница ошибки
                                         "/error"

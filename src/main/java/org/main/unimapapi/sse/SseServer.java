@@ -26,8 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class SseServer {
     private final List<SseClient> clients = new CopyOnWriteArrayList<>();
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private final ObjectMapper objectMapper = new ObjectMapper(); // serialization object to json
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1); // for check new news
     private final NewsRepository newsRepository;
     private List<News_dto> lastNews;
     private final AtomicInteger eventId = new AtomicInteger(1);

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * <p><strong>Base URL:</strong> <code>/api/notifications</code></p>
  */
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/api/unimap_pc/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
     private final DeviceService deviceService;
