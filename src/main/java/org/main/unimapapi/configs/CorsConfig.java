@@ -15,7 +15,7 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(List.of(
-                "http://147.175.161.201",
+                "http://192.168.43.239",
                 "http://localhost",
                 "http://192.168.0.119"
         ));
